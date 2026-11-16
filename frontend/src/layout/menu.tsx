@@ -3,7 +3,9 @@ import {
   AuditOutlined,
   BarChartOutlined,
   CarOutlined,
+  ContactsOutlined,
   DashboardOutlined,
+  ShopOutlined,
   InboxOutlined,
   ReconciliationOutlined,
   RetweetOutlined,
@@ -31,6 +33,8 @@ export interface MenuEntry {
 export const MENU: MenuEntry[] = [
   { path: '/', label: 'Dashboard', icon: <DashboardOutlined />, roles: [], phase: 0, useCase: 'UC8' },
   { path: '/products', label: 'Products', icon: <AppstoreOutlined />, roles: [], phase: 0, useCase: 'UC1' },
+  { path: '/suppliers', label: 'Suppliers', icon: <ShopOutlined />, roles: ['WAREHOUSE_MANAGER', 'STORE_KEEPER', 'ACCOUNTANT', 'MANAGEMENT'], phase: 1 },
+  { path: '/customers', label: 'Customers', icon: <ContactsOutlined />, roles: ['SALES_REP', 'ACCOUNTANT', 'WAREHOUSE_MANAGER', 'MANAGEMENT', 'DRIVER'], phase: 1, useCase: 'UC9' },
   { path: '/purchase-orders', label: 'Purchase orders', icon: <ShoppingOutlined />, roles: ['WAREHOUSE_MANAGER'], phase: 2, useCase: 'UC2' },
   { path: '/receiving', label: 'Receive stock', icon: <InboxOutlined />, roles: ['STORE_KEEPER', 'WAREHOUSE_MANAGER'], phase: 2, useCase: 'UC5' },
   { path: '/orders', label: 'Customer orders', icon: <ShoppingCartOutlined />, roles: ['SALES_REP', 'ACCOUNTANT', 'WAREHOUSE_MANAGER'], phase: 3, useCase: 'UC9' },

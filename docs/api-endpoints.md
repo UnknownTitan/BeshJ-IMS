@@ -3,7 +3,7 @@
 Base URL: `http://localhost:3000/api`. Every endpoint except **login** and **health** needs the header
 `Authorization: Bearer <accessToken>`. ADMIN may call every endpoint.
 
-Status: ✅ built (Phase 0) · ⬜ planned (phase number shown)
+Status: ✅ built (Phases 0–1) · ⬜ planned (phase number shown)
 
 The table is the team's contract: the frontend and backend developers agree on these paths and payloads before building a phase.
 
@@ -15,9 +15,10 @@ The table is the team's contract: the frontend and backend developers agree on t
 | ✅ | GET | `/auth/me` | any | The logged-in user |
 | ✅ | GET | `/health` | public | API up and database connected |
 | ✅ | GET | `/users` | ADMIN | List users |
-| ⬜ 1 | POST | `/users` | ADMIN | Create a user (role, temporary password) |
-| ⬜ 1 | PATCH | `/users/:id` | ADMIN | Change role, deactivate, reset password |
-| ⬜ 1 | POST | `/auth/change-password` | any | Change own password |
+| ✅ | POST | `/users` | ADMIN | Create a user with a temporary password |
+| ✅ | PATCH | `/users/:id` | ADMIN | Change name, role, phone; deactivate (not yourself) |
+| ✅ | POST | `/users/:id/reset-password` | ADMIN | Set a new temporary password |
+| ✅ | POST | `/auth/change-password` | any | Change own password (`current_password`, `new_password`) |
 | ✅ | GET | `/audit-log?table=&limit=` | ADMIN, MANAGEMENT | Audit trail (who did what, when) |
 
 ## Master data (UC1, FR1)
@@ -26,12 +27,14 @@ The table is the team's contract: the frontend and backend developers agree on t
 |---|---|---|---|---|
 | ✅ | GET | `/products?search=&includeInactive=` | any | Catalogue with warehouse stock; search by name, brand, SKU or barcode |
 | ✅ | GET | `/products/:id` | any | Product, unit conversions, batches |
-| ⬜ 1 | POST | `/products` | WAREHOUSE_MANAGER | Create product with unit conversions |
-| ⬜ 1 | PATCH | `/products/:id` | WAREHOUSE_MANAGER | Edit prices, reorder level; deactivate |
-| ⬜ 1 | GET | `/products/barcode/:code` | any | Look up by scanned barcode |
-| ⬜ 1 | GET/POST/PATCH | `/suppliers`, `/suppliers/:id` | WAREHOUSE_MANAGER | Suppliers |
-| ⬜ 1 | GET/POST/PATCH | `/customers`, `/customers/:id` | SALES_REP, ACCOUNTANT | Customers, credit limits |
-| ⬜ 1 | GET | `/categories`, `/container-types`, `/locations` | any | Lookup lists for forms |
+| ✅ | POST | `/products` | WAREHOUSE_MANAGER | Create product with `conversions: [{unit_name, base_qty}]` |
+| ✅ | PATCH | `/products/:id` | WAREHOUSE_MANAGER | Edit any field or conversions; deactivate with `is_active: false` |
+| ✅ | GET | `/products/barcode/:code` | any | Look up by scanned barcode or SKU |
+| ✅ | GET | `/suppliers`, `/suppliers/:id` | any | Suppliers with product counts |
+| ✅ | POST/PATCH | `/suppliers`, `/suppliers/:id` | WAREHOUSE_MANAGER | Add / edit supplier |
+| ✅ | GET | `/customers?search=`, `/customers/:id` | any | Customers with balance owed and empties held |
+| ✅ | POST/PATCH | `/customers`, `/customers/:id` | SALES_REP, ACCOUNTANT, WAREHOUSE_MANAGER | Add / edit; **only ACCOUNTANT may set credit terms** |
+| ✅ | GET | `/categories`, `/container-types`, `/locations` | any | Lookup lists for forms |
 
 ## Stock (FR3, FR4, FR5)
 

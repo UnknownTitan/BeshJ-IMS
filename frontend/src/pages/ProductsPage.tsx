@@ -1,37 +1,67 @@
-import { Card, Descriptions, Drawer, Input, Table, Tag, Typography } from 'antd';
+import { Button, Card, Checkbox, Descriptions, Drawer, Input, Space, Table, Tag, Typography } from 'antd';
+import { EditOutlined, PlusOutlined } from '@ant-design/icons';
 import { useEffect, useState } from 'react';
 import { get } from '../api/client';
+import { useAuth } from '../auth/AuthContext';
+import ProductForm from './ProductForm';
 
-/** UC1 - product catalogue (read-only in Phase 0; add/edit arrives in Phase 1). */
+/** UC1 - product catalogue. Everyone can view; the Warehouse Manager adds and edits. */
 export default function ProductsPage() {
   const [rows, setRows] = useState<any[]>([]);
   const [search, setSearch] = useState('');
   const [loading, setLoading] = useState(false);
   const [selected, setSelected] = useState<any | null>(null);
+  const [editing, setEditing] = useState<any | 'new' | null>(null);
+  const [showInactive, setShowInactive] = useState(false);
+  const { can } = useAuth();
+  const canEdit = can('WAREHOUSE_MANAGER');
 
-  const load = (q = search) => {
+  const load = (q = search, inactive = showInactive) => {
     setLoading(true);
-    get(`/products${q ? `?search=${encodeURIComponent(q)}` : ''}`)
+    const params = new URLSearchParams();
+    if (q) params.set('search', q);
+    if (inactive) params.set('includeInactive', 'true');
+    get(`/products?${params}`)
       .then(setRows)
       .finally(() => setLoading(false));
   };
 
-  useEffect(() => load(''), []);
+  useEffect(() => load('', false), []);
 
   const open = (id: number) => get(`/products/${id}`).then(setSelected);
 
   return (
     <Card>
-      <Typography.Title level={4}>Products</Typography.Title>
-      <Input.Search
-        placeholder="Search by name, brand, SKU or scan a barcode"
-        allowClear
-        enterButton
-        style={{ maxWidth: 420, marginBottom: 16 }}
-        value={search}
-        onChange={(e) => setSearch(e.target.value)}
-        onSearch={(q) => load(q)}
-      />
+      <Space style={{ width: '100%', justifyContent: 'space-between', marginBottom: 16 }} wrap>
+        <Typography.Title level={4} style={{ margin: 0 }}>
+          Products
+        </Typography.Title>
+        {canEdit && (
+          <Button type="primary" icon={<PlusOutlined />} onClick={() => setEditing('new')}>
+            New product
+          </Button>
+        )}
+      </Space>
+      <Space style={{ marginBottom: 16 }} wrap>
+        <Input.Search
+          placeholder="Search by name, brand, SKU or scan a barcode"
+          allowClear
+          enterButton
+          style={{ width: 420 }}
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+          onSearch={(q) => load(q)}
+        />
+        <Checkbox
+          checked={showInactive}
+          onChange={(e) => {
+            setShowInactive(e.target.checked);
+            load(search, e.target.checked);
+          }}
+        >
+          Show inactive
+        </Checkbox>
+      </Space>
       <Table
         rowKey="product_id"
         loading={loading}
@@ -40,7 +70,11 @@ export default function ProductsPage() {
         columns={[
           { title: 'SKU', dataIndex: 'sku' },
           { title: 'Brand', dataIndex: 'brand' },
-          { title: 'Product', dataIndex: 'product_name' },
+          {
+            title: 'Product',
+            dataIndex: 'product_name',
+            render: (n: string, r) => (r.is_active ? n : <Typography.Text type="secondary">{n} <Tag>Inactive</Tag></Typography.Text>),
+          },
           { title: 'Category', dataIndex: 'category_name' },
           { title: 'Pack', render: (_, r) => `${r.pack_size_ml} ml ${r.packaging}` },
           { title: 'Selling price', dataIndex: 'selling_price', align: 'right', render: (v: number) => `GH₵ ${v.toFixed(2)}` },
@@ -53,7 +87,19 @@ export default function ProductsPage() {
         ]}
       />
 
-      <Drawer width={560} open={!!selected} onClose={() => setSelected(null)} title={selected?.product_name}>
+      <Drawer
+        width={560}
+        open={!!selected}
+        onClose={() => setSelected(null)}
+        title={selected?.product_name}
+        extra={
+          canEdit && (
+            <Button icon={<EditOutlined />} onClick={() => setEditing(selected)}>
+              Edit
+            </Button>
+          )
+        }
+      >
         {selected && (
           <>
             <Descriptions column={1} size="small" bordered>
@@ -99,6 +145,16 @@ export default function ProductsPage() {
           </>
         )}
       </Drawer>
+
+      <ProductForm
+        product={editing}
+        onClose={() => setEditing(null)}
+        onSaved={(p) => {
+          setEditing(null);
+          if (selected) setSelected(p);
+          load();
+        }}
+      />
     </Card>
   );
 }
