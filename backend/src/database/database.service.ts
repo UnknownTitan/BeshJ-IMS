@@ -6,6 +6,8 @@ import { Pool, PoolClient, QueryResultRow, types } from 'pg';
 // Safe here: quantities and Ghana cedi amounts are far below 2^53.
 types.setTypeParser(20, (v) => parseInt(v, 10)); // int8
 types.setTypeParser(1700, (v) => parseFloat(v)); // numeric
+// Keep DATE columns as 'YYYY-MM-DD' strings: no time-zone shifts on expiry dates.
+types.setTypeParser(1082, (v) => v); // date
 
 /**
  * Thin wrapper around the node-postgres connection pool.

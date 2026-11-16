@@ -45,4 +45,38 @@ export class StockController {
   ) {
     return this.db.query(`SELECT * FROM fn_fefo_allocate($1, $2::smallint, $3)`, [productId, locationId, quantity]);
   }
+
+  /**
+   * GET /api/stock/movements?productId=1&type=RECEIPT&from=2026-01-01&to=2026-12-31&limit=100
+   * The stock ledger: every receipt, sale, transfer, breakage and adjustment.
+   */
+  @Get('movements')
+  @Roles(Role.WAREHOUSE_MANAGER, Role.STORE_KEEPER, Role.MANAGEMENT, Role.ACCOUNTANT)
+  movements(
+    @Query('productId') productId?: string,
+    @Query('type') type?: string,
+    @Query('from') from?: string,
+    @Query('to') to?: string,
+    @Query('limit') limit = '100',
+  ) {
+    return this.db.query(
+      `SELECT m.movement_id, m.movement_time, m.movement_type, m.quantity, m.reference, m.reason,
+              p.product_id, p.sku, p.product_name, b.batch_no, b.expiry_date,
+              fl.location_name AS from_location, tl.location_name AS to_location,
+              u.full_name AS user_name
+         FROM stock_movement m
+         JOIN stock_batch b ON b.batch_id = m.batch_id
+         JOIN product p     ON p.product_id = b.product_id
+         JOIN app_user u    ON u.user_id = m.user_id
+         LEFT JOIN stock_location fl ON fl.location_id = m.from_location_id
+         LEFT JOIN stock_location tl ON tl.location_id = m.to_location_id
+        WHERE ($1::int  IS NULL OR p.product_id = $1)
+          AND ($2::text IS NULL OR m.movement_type = $2)
+          AND ($3::date IS NULL OR m.movement_time >= $3)
+          AND ($4::date IS NULL OR m.movement_time < $4::date + 1)
+        ORDER BY m.movement_id DESC
+        LIMIT LEAST($5::int, 1000)`,
+      [productId ? Number(productId) : null, type || null, from || null, to || null, Number(limit) || 100],
+    );
+  }
 }

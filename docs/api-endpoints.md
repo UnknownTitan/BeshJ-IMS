@@ -3,7 +3,7 @@
 Base URL: `http://localhost:3000/api`. Every endpoint except **login** and **health** needs the header
 `Authorization: Bearer <accessToken>`. ADMIN may call every endpoint.
 
-Status: ✅ built (Phases 0–1) · ⬜ planned (phase number shown)
+Status: ✅ built (Phases 0–2) · ⬜ planned (phase number shown)
 
 The table is the team's contract: the frontend and backend developers agree on these paths and payloads before building a phase.
 
@@ -45,19 +45,27 @@ The table is the team's contract: the frontend and backend developers agree on t
 | ✅ | GET | `/stock/near-expiry` | any | View `v_near_expiry` (≤ 30 days) |
 | ✅ | GET | `/stock/valuation` | WAREHOUSE_MANAGER, ACCOUNTANT, MANAGEMENT | View `v_stock_valuation` |
 | ✅ | GET | `/stock/fefo?productId=&locationId=&quantity=` | any | Preview FEFO picking (`fn_fefo_allocate`) |
-| ⬜ 2 | GET | `/stock/movements?productId=&from=&to=` | WAREHOUSE_MANAGER | Stock ledger |
+| ✅ | GET | `/stock/movements?productId=&type=&from=&to=&limit=` | WAREHOUSE_MANAGER, STORE_KEEPER, MANAGEMENT, ACCOUNTANT | Stock ledger |
 | ⬜ 4 | POST | `/stock/transfers` | STORE_KEEPER | Move stock between warehouses |
 
-## Purchasing and receiving (UC2, UC5, FR2, FR4)
+## Purchasing and receiving (UC2, UC5, FR2, FR3, FR4)
+
+Roles for all of these: WAREHOUSE_MANAGER, STORE_KEEPER, MANAGEMENT, ACCOUNTANT can view; actions as listed.
+
+Life cycle: `DRAFT → APPROVED → SENT → PARTIAL → RECEIVED`, or `CANCELLED` before any goods arrive. A `PARTIAL` order can be closed short.
 
 | Status | Method | Path | Roles | Purpose |
 |---|---|---|---|---|
-| ⬜ 2 | GET | `/purchase-orders?status=` | WAREHOUSE_MANAGER, STORE_KEEPER | List POs |
-| ⬜ 2 | POST | `/purchase-orders` | WAREHOUSE_MANAGER | Create PO (can prefill from reorder alerts) |
-| ⬜ 2 | GET | `/purchase-orders/:id` | WAREHOUSE_MANAGER, STORE_KEEPER | PO with lines |
-| ⬜ 2 | POST | `/purchase-orders/:id/approve` | WAREHOUSE_MANAGER | Approve (must differ from creator: `chk_po_duties`) |
-| ⬜ 2 | POST | `/purchase-orders/:id/send` | WAREHOUSE_MANAGER | Mark as sent to supplier |
-| ⬜ 2 | POST | `/purchase-orders/:id/receive` | STORE_KEEPER | Receive lines with batch no., expiry, damaged qty → creates batches + RECEIPT movements in one transaction |
+| ✅ | GET | `/purchase-orders?status=APPROVED,SENT` | view roles | List POs with value and outstanding units |
+| ✅ | GET | `/purchase-orders/suggestions` | WAREHOUSE_MANAGER | What to reorder: up to 2× reorder level, minus open orders, in whole crates |
+| ✅ | GET | `/purchase-orders/:id` | view roles | PO with lines (ordered / received / damaged / outstanding) and deliveries |
+| ✅ | POST | `/purchase-orders` | WAREHOUSE_MANAGER | Create DRAFT: `{supplier_id, expected_date?, lines:[{product_id, quantity, unit_cost?}]}`; products must belong to the supplier |
+| ✅ | PATCH | `/purchase-orders/:id` | WAREHOUSE_MANAGER | Edit a DRAFT (lines replaced as a whole) |
+| ✅ | POST | `/purchase-orders/:id/approve` | WAREHOUSE_MANAGER, MANAGEMENT | Approve; **approver ≠ creator** (`chk_po_duties`) |
+| ✅ | POST | `/purchase-orders/:id/send` | WAREHOUSE_MANAGER | APPROVED → SENT |
+| ✅ | POST | `/purchase-orders/:id/cancel` | WAREHOUSE_MANAGER | Cancel before any goods arrive |
+| ✅ | POST | `/purchase-orders/:id/close` | WAREHOUSE_MANAGER | PARTIAL → RECEIVED (supplier won't deliver the rest) |
+| ✅ | POST | `/purchase-orders/:id/receive` | STORE_KEEPER, WAREHOUSE_MANAGER | Record a delivery (GRN): `{delivery_note_no, notes?, lines:[{line_no, qty_received, qty_damaged?, damage_note?, batch_no, expiry_date}]}`. One transaction: batches, RECEIPT movements, GRN, status |
 
 ## Sales (UC9, FR9)
 

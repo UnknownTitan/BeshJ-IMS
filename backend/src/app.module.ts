@@ -10,6 +10,8 @@ import { CustomersController } from './customers/customers.controller';
 import { LookupsController } from './lookups/lookups.controller';
 import { StockController } from './stock/stock.controller';
 import { UsersController } from './users/users.controller';
+import { PurchasingController } from './purchasing/purchasing.controller';
+import { PurchasingService } from './purchasing/purchasing.service';
 
 /**
  * Modular monolith (Assignment 8, AD3). Each business area has its own
@@ -27,7 +29,8 @@ import { UsersController } from './users/users.controller';
     LookupsController,
     StockController,
     UsersController,
+    PurchasingController,
   ],
-  providers: [ProductsService],
+  providers: [ProductsService, PurchasingService],
 })
 export class AppModule {}

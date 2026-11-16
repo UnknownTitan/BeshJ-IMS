@@ -35,7 +35,7 @@ export const MENU: MenuEntry[] = [
   { path: '/products', label: 'Products', icon: <AppstoreOutlined />, roles: [], phase: 0, useCase: 'UC1' },
   { path: '/suppliers', label: 'Suppliers', icon: <ShopOutlined />, roles: ['WAREHOUSE_MANAGER', 'STORE_KEEPER', 'ACCOUNTANT', 'MANAGEMENT'], phase: 1 },
   { path: '/customers', label: 'Customers', icon: <ContactsOutlined />, roles: ['SALES_REP', 'ACCOUNTANT', 'WAREHOUSE_MANAGER', 'MANAGEMENT', 'DRIVER'], phase: 1, useCase: 'UC9' },
-  { path: '/purchase-orders', label: 'Purchase orders', icon: <ShoppingOutlined />, roles: ['WAREHOUSE_MANAGER'], phase: 2, useCase: 'UC2' },
+  { path: '/purchase-orders', label: 'Purchase orders', icon: <ShoppingOutlined />, roles: ['WAREHOUSE_MANAGER', 'STORE_KEEPER', 'MANAGEMENT', 'ACCOUNTANT'], phase: 2, useCase: 'UC2' },
   { path: '/receiving', label: 'Receive stock', icon: <InboxOutlined />, roles: ['STORE_KEEPER', 'WAREHOUSE_MANAGER'], phase: 2, useCase: 'UC5' },
   { path: '/orders', label: 'Customer orders', icon: <ShoppingCartOutlined />, roles: ['SALES_REP', 'ACCOUNTANT', 'WAREHOUSE_MANAGER'], phase: 3, useCase: 'UC9' },
   { path: '/breakages', label: 'Breakages & write-offs', icon: <WarningOutlined />, roles: ['WAREHOUSE_MANAGER', 'STORE_KEEPER'], phase: 4, useCase: 'UC3' },

@@ -4,6 +4,17 @@ import { useEffect, useState } from 'react';
 import { get } from '../api/client';
 import { useAuth } from '../auth/AuthContext';
 import ProductForm from './ProductForm';
+import { date, dateTime } from '../format';
+
+const MOVE_COLORS: Record<string, string> = {
+  RECEIPT: 'green',
+  SALE: 'blue',
+  VAN_LOAD: 'geekblue',
+  VAN_RETURN: 'cyan',
+  TRANSFER: 'purple',
+  BREAKAGE: 'red',
+  ADJUSTMENT: 'orange',
+};
 
 /** UC1 - product catalogue. Everyone can view; the Warehouse Manager adds and edits. */
 export default function ProductsPage() {
@@ -28,7 +39,13 @@ export default function ProductsPage() {
 
   useEffect(() => load('', false), []);
 
-  const open = (id: number) => get(`/products/${id}`).then(setSelected);
+  const [movements, setMovements] = useState<any[]>([]);
+  const canSeeLedger = can('WAREHOUSE_MANAGER', 'STORE_KEEPER', 'MANAGEMENT', 'ACCOUNTANT');
+
+  const open = (id: number) => {
+    get(`/products/${id}`).then(setSelected);
+    if (canSeeLedger) get(`/stock/movements?productId=${id}&limit=20`).then(setMovements);
+  };
 
   return (
     <Card>
@@ -138,10 +155,37 @@ export default function ProductsPage() {
               columns={[
                 { title: 'Batch', dataIndex: 'batch_no' },
                 { title: 'Location', dataIndex: 'location_name' },
-                { title: 'Expiry', dataIndex: 'expiry_date', render: (d: string) => d.slice(0, 10) },
+                { title: 'Expiry', dataIndex: 'expiry_date', render: date },
                 { title: 'Qty', dataIndex: 'qty_on_hand', align: 'right' },
               ]}
             />
+            {canSeeLedger && (
+              <>
+                <Typography.Title level={5} style={{ marginTop: 24 }}>
+                  Recent stock movements
+                </Typography.Title>
+                <Table
+                  rowKey="movement_id"
+                  size="small"
+                  pagination={false}
+                  dataSource={movements}
+                  locale={{ emptyText: 'No movements recorded' }}
+                  columns={[
+                    { title: 'When', dataIndex: 'movement_time', render: dateTime },
+                    { title: 'Type', dataIndex: 'movement_type', render: (t: string) => <Tag color={MOVE_COLORS[t]}>{t}</Tag> },
+                    { title: 'Batch', dataIndex: 'batch_no' },
+                    {
+                      title: 'Qty',
+                      dataIndex: 'quantity',
+                      align: 'right',
+                      render: (q: number, m: any) => (m.to_location && !m.from_location ? `+${q}` : m.from_location && !m.to_location ? `−${q}` : q),
+                    },
+                    { title: 'Reference', dataIndex: 'reference' },
+                    { title: 'By', dataIndex: 'user_name' },
+                  ]}
+                />
+              </>
+            )}
           </>
         )}
       </Drawer>
