@@ -1,0 +1,121 @@
+# BESH. J Limited – Inventory Management System (IMS)
+
+GIMPA · GSOT707 Database & Programming Concepts · group mini project
+
+A web-based inventory system for a Ghanaian beverage distributor: products and unit conversions, batch and expiry tracking with FEFO picking, purchasing, customer orders and VAT invoices, empties and deposits, van reconciliation, an audit trail and reports. It implements the design in our System Analysis & Design Assignments 1–8.
+
+**Current status: Phase 0 (foundation) complete.** Login, roles, audit trail, product catalogue (read), dashboard with reorder alerts, stock valuation and near-expiry stock.
+
+## Stack
+
+| Layer | Technology |
+|---|---|
+| Database | PostgreSQL 16, schema `ims` (17 tables from Assignment 7 + `audit_log`) |
+| API | Node.js 20+ · NestJS 10 · plain SQL via `pg` (no ORM, so the SQL is visible) |
+| Auth | JWT + bcrypt, role guard on every endpoint |
+| Frontend | React 18 + TypeScript · Vite · Ant Design |
+| Tests | Jest + Supertest (end-to-end against the real database) |
+
+## Folder layout
+
+```
+besh-ims/
+├─ database/
+│  ├─ 01_schema.sql            Assignment 7 schema (17 tables, 3 views, indexes)
+│  ├─ 02_sample_data.sql       Assignment 7 sample data
+│  ├─ 03_phase0_additions.sql  passwords, audit_log + triggers, views, fn_fefo_allocate()
+│  └─ reset_db.sh              rebuild the database from scratch
+├─ backend/                    NestJS REST API  (src/<module>/...)
+├─ frontend/                   React app        (src/pages, src/layout, src/api)
+├─ docs/api-endpoints.md       endpoint list: built and planned, by phase
+└─ docker-compose.yml          PostgreSQL 16 for development
+```
+
+## Getting started
+
+You need **Node.js 20+** and either **Docker Desktop** or a local **PostgreSQL 16**.
+
+### 1. Database
+
+With Docker (recommended):
+
+```bash
+docker compose up -d          # first start loads 01, 02 and 03 automatically
+```
+
+Without Docker, create a database and user, then run the scripts:
+
+```bash
+createuser -P besh            # password: besh_dev_pw
+createdb -O besh besh_ims
+PGUSER=besh PGDATABASE=besh_ims PGHOST=localhost ./database/reset_db.sh
+```
+
+Note: `03_phase0_additions.sql` runs `CREATE EXTENSION pgcrypto`. If the `besh` user is not a superuser, run that one line as `postgres` first.
+
+### 2. API
+
+```bash
+cd backend
+cp .env.example .env
+npm install
+npm run start:dev             # http://localhost:3000/api/health
+```
+
+### 3. Frontend
+
+```bash
+cd frontend
+npm install
+npm run dev                   # http://localhost:5173
+```
+
+### Demo logins (password for all: `Password123!`)
+
+| Username | Role |
+|---|---|
+| kappiah | Admin |
+| kmensah | Warehouse Manager |
+| aowusu | Store Keeper |
+| kasante / anyarko | Sales Rep |
+| yboateng / kofori | Driver |
+| edarko | Accountant |
+| aadjei | Management |
+
+## Tests
+
+```bash
+./database/reset_db.sh        # or: docker compose down -v && docker compose up -d
+cd backend && npm run test:e2e
+```
+
+10 tests cover login, wrong password, role restrictions, the audit trail, reorder alerts and FEFO picking. Each test names the requirement it checks (FR1–FR12), so the results can go straight into the report's testing chapter.
+
+## Database features worth showing in the report and Q&A
+
+- **Constraints:** CHECK rules for prices, packaging, roles and statuses; a rule that a PO approver must differ from its creator (`chk_po_duties`); invoice total = subtotal + VAT + deposit.
+- **Views:** `v_stock_on_hand`, `v_customer_balance`, `v_empties_balance`, `v_reorder_alerts`, `v_near_expiry`, `v_stock_valuation`. Derived figures are calculated, not stored, which keeps the schema in 3NF.
+- **Trigger:** `fn_audit()` records every insert, update and delete with before and after values and the logged-in user. The API passes the user through `set_config('app.user_id', …)`. `audit_log` is append-only, enforced by a trigger.
+- **Stored function:** `fn_fefo_allocate(product, location, qty)` picks batches earliest-expiry-first and refuses to oversell.
+- **Transactions:** `DatabaseService.transaction()` wraps multi-step operations (e.g. order + stock deduction + invoice) so they succeed or fail together.
+
+## How to work on the code
+
+1. Pull the latest `main`, then create a branch per feature: `feature/receiving`, `feature/orders`.
+2. Agree the endpoint in `docs/api-endpoints.md` before building it.
+3. Database changes go in a **new numbered script** (`04_...sql`). Never edit 01–03 after others have run them.
+4. Add at least one e2e test per feature, named after its FR.
+5. Open a pull request; one teammate reviews before merging.
+
+## Roadmap
+
+| Phase | Weeks | Scope |
+|---|---|---|
+| 0 Setup ✅ | 1 | Repo, database, API and UI skeletons, auth, audit, endpoint list |
+| 1 Foundation | 2 | Users CRUD, products/suppliers/customers CRUD (UC10, UC1) |
+| 2 Stock in | 3 | Purchase orders, approvals, receiving with batch and expiry (UC2, UC5) |
+| 3 Stock out | 4 | Orders, credit check, FEFO, VAT invoice, payments (UC9): **main demo flow** |
+| 4 Extras | 5 | Breakages, empties, van reconciliation, stocktake (UC3, UC7, UC6, UC4) |
+| 5 Insight | 5–6 | Dashboard and reports, PDF/Excel export (UC8) |
+| 6 Testing | 6 | Unit and API tests, FR traceability, UAT |
+| 7 Wrap-up | 7 | Report, slides, demo script |
