@@ -18,6 +18,7 @@ import BreakagesPage from './pages/operations/BreakagesPage';
 import EmptiesPage from './pages/operations/EmptiesPage';
 import VansPage from './pages/operations/VansPage';
 import StocktakePage from './pages/operations/StocktakePage';
+import ReportsPage from './pages/ReportsPage';
 import { AuditLogPage, ComingSoon, UsersPage } from './pages/AdminPages';
 
 // Screens that exist so far. Everything else in MENU shows a "coming in Phase N" page.
@@ -34,6 +35,7 @@ const PAGES: Record<string, ReactNode> = {
   '/empties': <EmptiesPage />,
   '/vans': <VansPage />,
   '/stocktake': <StocktakePage />,
+  '/reports': <ReportsPage />,
   '/users': <UsersPage />,
   '/audit-log': <AuditLogPage />,
 };

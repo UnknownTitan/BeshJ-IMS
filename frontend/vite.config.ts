@@ -8,4 +8,17 @@ export default defineConfig({
     port: 5173,
     proxy: { '/api': 'http://localhost:3000' },
   },
+  build: {
+    // Split big libraries into their own files so browsers can cache them.
+    rollupOptions: {
+      output: {
+        manualChunks: {
+          react: ['react', 'react-dom', 'react-router-dom'],
+          antd: ['antd', '@ant-design/icons'],
+          charts: ['recharts'],
+        },
+      },
+    },
+    chunkSizeWarningLimit: 1400,
+  },
 })
