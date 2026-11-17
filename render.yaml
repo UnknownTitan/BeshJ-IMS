@@ -1,0 +1,23 @@
+# Render Blueprint: one free web service runs the API and serves the React screens.
+# The database is hosted separately (e.g. Neon); paste its connection string as DATABASE_URL.
+# Step-by-step guide: docs/hosting.md
+services:
+  - type: web
+    name: besh-ims
+    runtime: node
+    plan: free
+    branch: main
+    buildCommand: cd frontend && npm ci && npm run build && cd ../backend && npm ci && npm run build
+    startCommand: cd backend && node dist/main.js
+    healthCheckPath: /api/health
+    envVars:
+      - key: NODE_VERSION
+        value: "20"
+      - key: DATABASE_URL
+        sync: false # you paste this in when creating the service
+      - key: JWT_SECRET
+        generateValue: true
+      - key: JWT_EXPIRES_IN
+        value: 8h
+      - key: DB_AUTO_SETUP
+        value: "true" # builds schema + sample data on first start if the database is empty

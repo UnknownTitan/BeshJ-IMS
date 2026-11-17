@@ -1,5 +1,8 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
+import { ServeStaticModule } from '@nestjs/serve-static';
+import { existsSync } from 'fs';
+import { join } from 'path';
 import { DatabaseModule } from './database/database.module';
 import { AuthModule } from './auth/auth.module';
 import { HealthController } from './health/health.controller';
@@ -19,8 +22,18 @@ import { PurchasingService } from './purchasing/purchasing.service';
  * is larger, a service. Later phases add purchasing, receiving, orders,
  * invoices, empties, vans and reports the same way.
  */
+/** The built React app (frontend/dist). When present, the API also serves the screens: one web address for hosting. */
+const FRONTEND_DIST = join(__dirname, '..', '..', 'frontend', 'dist');
+
 @Module({
-  imports: [ConfigModule.forRoot({ isGlobal: true }), DatabaseModule, AuthModule],
+  imports: [
+    ConfigModule.forRoot({ isGlobal: true }),
+    DatabaseModule,
+    AuthModule,
+    ...(existsSync(FRONTEND_DIST)
+      ? [ServeStaticModule.forRoot({ rootPath: FRONTEND_DIST, exclude: ['/api/(.*)'] })]
+      : []),
+  ],
   controllers: [
     HealthController,
     ProductsController,

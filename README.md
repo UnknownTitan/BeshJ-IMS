@@ -32,7 +32,9 @@ besh-ims/
 ├─ backend/                    NestJS REST API  (src/<module>/...)
 ├─ frontend/                   React app        (src/pages, src/layout, src/api)
 ├─ docs/api-endpoints.md       endpoint list: built and planned, by phase
-└─ docker-compose.yml          PostgreSQL 16 for development
+├─ docs/hosting.md             how to put it online (Neon + Render, free)
+├─ docker-compose.yml          PostgreSQL 16 for development
+└─ render.yaml                 Render hosting blueprint
 ```
 
 ## Getting started
@@ -87,6 +89,16 @@ npm run dev                   # http://localhost:5173
 | yboateng / kofori | Driver |
 | edarko | Accountant |
 | aadjei | Management |
+
+## Hosting online
+
+The app can run at one public web address for free: **Neon** for the database and **Render** for the API and screens. See **[docs/hosting.md](docs/hosting.md)** for the steps.
+
+On first start against an empty database, the API builds the schema and sample data itself (`DB_AUTO_SETUP=true`). To reload fresh sample data at any time:
+
+```bash
+cd backend && npm run build && npm run db:reset    # uses DATABASE_URL from .env or the environment
+```
 
 ## Tests
 

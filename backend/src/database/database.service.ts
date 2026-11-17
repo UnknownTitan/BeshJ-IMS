@@ -1,6 +1,7 @@
-import { Injectable, OnModuleDestroy } from '@nestjs/common';
+import { Injectable, Logger, OnModuleDestroy, OnModuleInit } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { Pool, PoolClient, QueryResultRow, types } from 'pg';
+import { buildDatabase, databaseExists } from './setup';
 
 // Return COUNT/SUM (bigint) and NUMERIC money columns as JavaScript numbers.
 // Safe here: quantities and Ghana cedi amounts are far below 2^53.
@@ -19,14 +20,19 @@ types.setTypeParser(1082, (v) => v); // date
  * Every connection uses the "ims" schema.
  */
 @Injectable()
-export class DatabaseService implements OnModuleDestroy {
+export class DatabaseService implements OnModuleInit, OnModuleDestroy {
   private readonly pool: Pool;
+  private readonly logger = new Logger('Database');
 
-  constructor(config: ConfigService) {
+  constructor(private readonly config: ConfigService) {
     this.pool = new Pool({
       connectionString: config.get<string>('DATABASE_URL'),
       max: 10,
-      options: '-c search_path=ims,public',
+    });
+    // Every connection works in the "ims" schema. (Set per connection rather than as a
+    // startup option, because hosted Postgres poolers such as Neon's reject startup options.)
+    this.pool.on('connect', (client) => {
+      client.query('SET search_path TO ims, public').catch(() => undefined);
     });
   }
 
@@ -63,6 +69,18 @@ export class DatabaseService implements OnModuleDestroy {
     } finally {
       client.release();
     }
+  }
+
+  /**
+   * Hosting convenience: with DB_AUTO_SETUP=true, an empty database is built
+   * automatically (schema + sample data) the first time the API starts.
+   * An existing database is never touched.
+   */
+  async onModuleInit() {
+    if (this.config.get('DB_AUTO_SETUP') !== 'true') return;
+    if (await databaseExists(this.pool)) return;
+    this.logger.log('Empty database: building schema and sample data');
+    await buildDatabase(this.pool, (m) => this.logger.log(m));
   }
 
   async onModuleDestroy() {
