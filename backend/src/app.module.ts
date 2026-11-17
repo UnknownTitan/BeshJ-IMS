@@ -15,6 +15,8 @@ import { StockController } from './stock/stock.controller';
 import { UsersController } from './users/users.controller';
 import { PurchasingController } from './purchasing/purchasing.controller';
 import { PurchasingService } from './purchasing/purchasing.service';
+import { InvoicesController, OrdersController } from './sales/sales.controller';
+import { OrdersService } from './sales/orders.service';
 
 /**
  * Modular monolith (Assignment 8, AD3). Each business area has its own
@@ -43,7 +45,9 @@ const FRONTEND_DIST = join(__dirname, '..', '..', 'frontend', 'dist');
     StockController,
     UsersController,
     PurchasingController,
+    OrdersController,
+    InvoicesController,
   ],
-  providers: [ProductsService, PurchasingService],
+  providers: [ProductsService, PurchasingService, OrdersService],
 })
 export class AppModule {}

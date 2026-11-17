@@ -26,3 +26,23 @@ export const PO_STATUS_COLORS: Record<string, string> = {
   RECEIVED: 'green',
   CANCELLED: 'red',
 };
+
+export const ORDER_STATUS: Record<string, { label: string; color: string }> = {
+  DRAFT: { label: 'Draft', color: 'default' },
+  PENDING_CREDIT_APPROVAL: { label: 'Awaiting credit approval', color: 'gold' },
+  CONFIRMED: { label: 'Confirmed', color: 'blue' },
+  PICKING: { label: 'Invoiced – to deliver', color: 'geekblue' },
+  LOADED_ON_VAN: { label: 'On van', color: 'purple' },
+  DELIVERED: { label: 'Delivered – unpaid', color: 'orange' },
+  OVERDUE: { label: 'Overdue', color: 'red' },
+  PAID: { label: 'Paid', color: 'green' },
+  RETURNED: { label: 'Returned', color: 'magenta' },
+  CANCELLED: { label: 'Cancelled', color: 'red' },
+};
+
+export const PAYMENT_METHODS: Record<string, string> = {
+  CASH: 'Cash',
+  MOBILE_MONEY: 'Mobile money',
+  BANK_TRANSFER: 'Bank transfer',
+  CHEQUE: 'Cheque',
+};

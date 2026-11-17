@@ -3,7 +3,7 @@
 Base URL: `http://localhost:3000/api`. Every endpoint except **login** and **health** needs the header
 `Authorization: Bearer <accessToken>`. ADMIN may call every endpoint.
 
-Status: ✅ built (Phases 0–2) · ⬜ planned (phase number shown)
+Status: ✅ built (Phases 0–3) · ⬜ planned (phase number shown)
 
 The table is the team's contract: the frontend and backend developers agree on these paths and payloads before building a phase.
 
@@ -67,19 +67,28 @@ Life cycle: `DRAFT → APPROVED → SENT → PARTIAL → RECEIVED`, or `CANCELLE
 | ✅ | POST | `/purchase-orders/:id/close` | WAREHOUSE_MANAGER | PARTIAL → RECEIVED (supplier won't deliver the rest) |
 | ✅ | POST | `/purchase-orders/:id/receive` | STORE_KEEPER, WAREHOUSE_MANAGER | Record a delivery (GRN): `{delivery_note_no, notes?, lines:[{line_no, qty_received, qty_damaged?, damage_note?, batch_no, expiry_date}]}`. One transaction: batches, RECEIPT movements, GRN, status |
 
-## Sales (UC9, FR9)
+## Sales, invoices and payments (UC9, FR5, FR9, FR10)
+
+View roles: SALES_REP, ACCOUNTANT, WAREHOUSE_MANAGER, STORE_KEEPER, MANAGEMENT, DRIVER.
+
+Life cycle: `DRAFT → (submit) → CONFIRMED`, or `PENDING_CREDIT_APPROVAL → (Accountant approves) → CONFIRMED`; then `→ (invoice) → PICKING → (deliver, with van) → DELIVERED → (paid in full) → PAID`. Cancel is allowed before invoicing.
 
 | Status | Method | Path | Roles | Purpose |
 |---|---|---|---|---|
-| ⬜ 3 | GET | `/orders?status=&customerId=` | SALES_REP, ACCOUNTANT | List orders |
-| ⬜ 3 | POST | `/orders` | SALES_REP | Create order; checks stock and credit limit (`v_customer_balance`) |
-| ⬜ 3 | GET | `/orders/:id` | SALES_REP, ACCOUNTANT | Order with lines and invoice |
-| ⬜ 3 | POST | `/orders/:id/approve-credit` | ACCOUNTANT, WAREHOUSE_MANAGER | Approve an order over the credit limit |
-| ⬜ 3 | POST | `/orders/:id/confirm` | SALES_REP | Allocate stock FEFO, deduct stock, issue invoice with VAT (one transaction) |
-| ⬜ 3 | POST | `/orders/:id/cancel` | SALES_REP, ACCOUNTANT | Cancel and release stock |
-| ⬜ 3 | GET | `/invoices/:id` · `/invoices/:id/pdf` | SALES_REP, ACCOUNTANT | Invoice data / printable PDF |
-| ⬜ 3 | POST | `/payments` | ACCOUNTANT, SALES_REP | Record payment against invoice |
-| ⬜ 3 | GET | `/customers/:id/statement` | ACCOUNTANT | Balance and history |
+| ✅ | GET | `/orders?status=&customerId=&mine=true` | view roles | List orders with invoice total and amount outstanding |
+| ✅ | GET | `/orders/:id` | view roles | Order, lines with container deposits, totals (tax at today's rate before invoicing), invoice, FEFO batches picked, payments |
+| ✅ | POST | `/orders` | SALES_REP, WAREHOUSE_MANAGER, ACCOUNTANT | Create DRAFT `{customer_id, lines:[{product_id, quantity, unit_price?}]}`; list price unless a manager/accountant sets one; never below cost |
+| ✅ | PATCH | `/orders/:id` | same | Replace lines of a DRAFT |
+| ✅ | POST | `/orders/:id/submit` | same | Check unexpired stock and credit limit → CONFIRMED or PENDING_CREDIT_APPROVAL |
+| ✅ | POST | `/orders/:id/approve-credit` | ACCOUNTANT | Approve an over-limit order (not your own) |
+| ✅ | POST | `/orders/:id/cancel` | SALES_REP, WAREHOUSE_MANAGER, ACCOUNTANT | Cancel before invoicing |
+| ✅ | POST | `/orders/:id/invoice` | SALES_REP, ACCOUNTANT, WAREHOUSE_MANAGER, STORE_KEEPER | One transaction: FEFO pick from Main Warehouse + SALE movements, VAT invoice (simulated GRA code), empties issued |
+| ✅ | POST | `/orders/:id/deliver` | SALES_REP, DRIVER, STORE_KEEPER, WAREHOUSE_MANAGER | `{van_id}`: delivered by a van (`chk_order_van`); PAID if already paid |
+| ✅ | GET | `/invoices?unpaid=true&customerId=` | view roles | Invoices with paid, outstanding, days overdue (`v_invoice_balance`) |
+| ✅ | GET | `/invoices/:id` | view roles | Full invoice (same shape as an order) |
+| ✅ | GET | `/tax-rates` | view roles | Tax components in force (VAT 15%, NHIL 2.5%, GETFund 2.5%) |
+| ✅ | GET | `/payments?customerId=` | view roles | Payments received |
+| ✅ | POST | `/payments` | ACCOUNTANT, SALES_REP, DRIVER | `{customer_id, invoice_id?, amount, payment_method, reference?, payment_date?}`; reference required except cash; overpayment refused by `trg_payment_check` |
 
 ## Losses, empties, vans, stocktake (UC3, UC7, UC6, UC4)
 

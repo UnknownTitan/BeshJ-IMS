@@ -11,6 +11,9 @@ import SuppliersPage from './pages/SuppliersPage';
 import CustomersPage from './pages/CustomersPage';
 import PurchaseOrdersPage from './pages/purchasing/PurchaseOrdersPage';
 import ReceivingPage from './pages/purchasing/ReceivingPage';
+import OrdersPage from './pages/sales/OrdersPage';
+import InvoicesPage from './pages/sales/InvoicesPage';
+import InvoicePrint from './pages/sales/InvoicePrint';
 import { AuditLogPage, ComingSoon, UsersPage } from './pages/AdminPages';
 
 // Screens that exist so far. Everything else in MENU shows a "coming in Phase N" page.
@@ -21,6 +24,8 @@ const PAGES: Record<string, ReactNode> = {
   '/customers': <CustomersPage />,
   '/purchase-orders': <PurchaseOrdersPage />,
   '/receiving': <ReceivingPage />,
+  '/orders': <OrdersPage />,
+  '/invoices': <InvoicesPage />,
   '/users': <UsersPage />,
   '/audit-log': <AuditLogPage />,
 };
@@ -36,6 +41,14 @@ function AppRoutes() {
   return (
     <Routes>
       <Route path="/login" element={<LoginPage />} />
+      <Route
+        path="/print/invoice/:id"
+        element={
+          <Protected>
+            <InvoicePrint />
+          </Protected>
+        }
+      />
       <Route
         element={
           <Protected>
