@@ -31,10 +31,10 @@ describe('Phase 0 - foundation (e2e)', () => {
 
   afterAll(async () => app.close());
 
-  it('API is up and reaches the database (18 tables)', async () => {
+  it('API is up and reaches the database (20 tables)', async () => {
     const res = await request(app.getHttpServer()).get('/api/health').expect(200);
     expect(res.body.database).toBe('connected');
-    expect(res.body.tables).toBe(18);
+    expect(res.body.tables).toBe(20);
   });
 
   it('FR12: a valid user can log in and receives their role', async () => {
@@ -78,13 +78,13 @@ describe('Phase 0 - foundation (e2e)', () => {
     expect(typeof res.body[0].warehouse_qty).toBe('number');
   });
 
-  it('FR4: Sprite 300 ml is below its reorder level and raises an alert', async () => {
+  it('FR4: reorder alerts list exactly the products at or below their reorder level', async () => {
     const token = await login('kmensah');
-    const res = await request(app.getHttpServer())
-      .get('/api/stock/reorder-alerts')
-      .set('Authorization', `Bearer ${token}`)
-      .expect(200);
-    expect(res.body.map((r: any) => r.sku)).toContain('SP-300-GL');
+    const auth = { Authorization: `Bearer ${token}` };
+    const alerts = (await request(app.getHttpServer()).get('/api/stock/reorder-alerts').set(auth).expect(200)).body;
+    const products = (await request(app.getHttpServer()).get('/api/products').set(auth).expect(200)).body;
+    const low = products.filter((p: any) => p.warehouse_qty <= p.reorder_level).map((p: any) => p.sku).sort();
+    expect(alerts.map((a: any) => a.sku).sort()).toEqual(low);
   });
 
   it('FR5: FEFO picks the earliest-expiring batch first', async () => {
