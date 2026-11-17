@@ -3,7 +3,7 @@
 Base URL: `http://localhost:3000/api`. Every endpoint except **login** and **health** needs the header
 `Authorization: Bearer <accessToken>`. ADMIN may call every endpoint.
 
-Status: ✅ built (Phases 0–4) · ⬜ planned (phase number shown)
+Status: ✅ built (Phases 0–5): all 10 use cases · ⬜ planned (phase number shown)
 
 The table is the team's contract: the frontend and backend developers agree on these paths and payloads before building a phase.
 
@@ -116,15 +116,20 @@ Life cycle: `DRAFT → (submit) → CONFIRMED`, or `PENDING_CREDIT_APPROVAL → 
 | ✅ | POST | `/stocktakes/:id/cancel` | WAREHOUSE_MANAGER | Cancel an open count |
 | ✅ | GET | `/staff` | any | Active staff names (for "person responsible") |
 
-## Reports and dashboard (UC8, FR11)
+## Dashboard and reports (UC8, FR11)
+
+Every report returns the same shape: `{name, title, subtitle, columns:[{key, label, type}], rows, totals}`. The screen and both exporters work from it.
 
 | Status | Method | Path | Roles | Purpose |
 |---|---|---|---|---|
-| ⬜ 5 | GET | `/dashboard` | WAREHOUSE_MANAGER, ACCOUNTANT, MANAGEMENT | Key metrics in one call |
-| ⬜ 5 | GET | `/reports/sales?from=&to=&groupBy=product\|brand\|customer` | ACCOUNTANT, MANAGEMENT | Sales report |
-| ⬜ 5 | GET | `/reports/fast-slow-movers?days=` | WAREHOUSE_MANAGER, MANAGEMENT | Fast- and slow-moving products |
-| ⬜ 5 | GET | `/reports/losses?from=&to=` | WAREHOUSE_MANAGER, MANAGEMENT | Breakages and write-offs |
-| ⬜ 5 | GET | `/reports/:name/export?format=pdf\|xlsx` | as report | PDF / Excel export |
+| ✅ | GET | `/dashboard` | any | Key figures (sales today/month, margin, owed, overdue, stock value, reorder, near-expiry, losses), pending work counts, 14-day sales series, top products, sales and stock by category |
+| ✅ | GET | `/reports/sales?from=&to=&groupBy=product\|brand\|category\|customer\|rep\|channel\|day\|month` | WAREHOUSE_MANAGER, ACCOUNTANT, MANAGEMENT | Units, revenue (before tax and deposits), cost, margin, margin % |
+| ✅ | GET | `/reports/movers?days=30` | same | Units sold, per day, warehouse stock, days of cover, Fast / Normal / Slow / Not selling |
+| ✅ | GET | `/reports/losses?from=&to=` | same | Write-offs, van breakage and shortages, stocktake shortfalls, at cost (`v_stock_losses`) |
+| ✅ | GET | `/reports/valuation` | same | Stock at cost and selling price, potential margin |
+| ✅ | GET | `/reports/receivables` | same | Money owed by customer in 0–30 / 31–60 / 61–90 / 90+ day bands, overdue (`v_receivables_ageing`) |
+| ✅ | GET | `/reports/expiry?days=90` | same | Batches expiring within N days |
+| ✅ | GET | `/reports/:name/export?format=xlsx\|pdf&…` | same | Same report as an Excel workbook (live SUM totals, GH₵ formats, frozen header, filters) or a PDF |
 
 ## Error format
 

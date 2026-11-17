@@ -20,6 +20,7 @@ services:
       - ./database/04_phase2_purchasing.sql:/docker-entrypoint-initdb.d/04_phase2_purchasing.sql:ro
       - ./database/05_phase3_sales.sql:/docker-entrypoint-initdb.d/05_phase3_sales.sql:ro
       - ./database/06_phase4_operations.sql:/docker-entrypoint-initdb.d/06_phase4_operations.sql:ro
+      - ./database/07_phase5_reports.sql:/docker-entrypoint-initdb.d/07_phase5_reports.sql:ro
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U besh -d besh_ims"]
       interval: 5s

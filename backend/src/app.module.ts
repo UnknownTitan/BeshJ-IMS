@@ -20,6 +20,9 @@ import { OrdersService } from './sales/orders.service';
 import { EmptiesController, WriteOffsController } from './operations/writeoffs-empties.controller';
 import { VansController } from './operations/vans.controller';
 import { StocktakeController } from './operations/stocktake.controller';
+import { ReportsController } from './reports/reports.controller';
+import { ReportsService } from './reports/reports.service';
+import { ExportService } from './reports/export.service';
 
 /**
  * Modular monolith (Assignment 8, AD3). Each business area has its own
@@ -54,7 +57,8 @@ const FRONTEND_DIST = join(__dirname, '..', '..', 'frontend', 'dist');
     EmptiesController,
     VansController,
     StocktakeController,
+    ReportsController,
   ],
-  providers: [ProductsService, PurchasingService, OrdersService],
+  providers: [ProductsService, PurchasingService, OrdersService, ReportsService, ExportService],
 })
 export class AppModule {}
