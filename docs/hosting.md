@@ -71,7 +71,10 @@ $env:DATABASE_URL="<your Neon connection string>"; npm run db:reset
 
 This drops everything and reloads the sample data. Anything typed into the hosted site is lost.
 
-**Adding a new database script** (e.g. `05_phase3_sales.sql`). The hosted database won't run it on its own, because it already has data. After deploying, run `db:reset` as above. That rebuilds everything, including the new script, so it also wipes any data entered so far.
+**Adding a new database script** (e.g. `06_phase4_....sql`). The live database won't run it on its own, because it already has data. Choose one:
+
+- **Keep the data:** open the Neon Console → your project → **SQL Editor**, paste the new script and run it. Do this *before* merging the code that needs it.
+- **Start fresh:** run `db:reset` as above. That rebuilds everything, including the new script, and wipes data entered on the site.
 
 ## If something goes wrong
 
