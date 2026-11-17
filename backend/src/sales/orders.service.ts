@@ -208,10 +208,18 @@ export class OrdersService {
    *  4. order status -> PICKING
    * If anything fails (e.g. not enough unexpired stock), nothing is saved.
    */
-  async invoice(id: number, user: AuthUser) {
+  async invoice(id: number, user: AuthUser, vanId?: number) {
     await this.db.transaction(user.userId, async (c) => {
       const o = await this.lock(c, id);
       this.requireStatus(o, ['CONFIRMED'], 'invoice');
+
+      // Van sale (UC6): pick from the stock on the van instead of the warehouse.
+      let source = MAIN_WAREHOUSE;
+      if (vanId) {
+        const { rows: v } = await c.query(`SELECT location_type FROM stock_location WHERE location_id = $1`, [vanId]);
+        if (v[0]?.location_type !== 'VAN') throw new BadRequestException('That location is not a delivery van');
+        source = vanId;
+      }
 
       const { rows: inv } = await c.query(`SELECT fn_next_doc_no('INV', 'inv_no_seq', 5) AS no, fn_tax_rate() AS rate`);
       const invoiceNo: string = inv[0].no;
@@ -221,14 +229,14 @@ export class OrdersService {
       for (const line of lines) {
         const { rows: picks } = await c.query(`SELECT * FROM fn_fefo_allocate($1, $2::smallint, $3)`, [
           line.product_id,
-          MAIN_WAREHOUSE,
+          source,
           line.quantity,
         ]);
         for (const pick of picks) {
           await c.query(
             `INSERT INTO stock_movement (batch_id, movement_type, quantity, from_location_id, user_id, reference)
              VALUES ($1, 'SALE', $2, $3, $4, $5)`,
-            [pick.batch_id, pick.qty_to_pick, MAIN_WAREHOUSE, user.userId, invoiceNo],
+            [pick.batch_id, pick.qty_to_pick, source, user.userId, invoiceNo],
           );
         }
       }
@@ -263,7 +271,11 @@ export class OrdersService {
         );
       }
 
-      await c.query(`UPDATE customer_order SET status = 'PICKING' WHERE order_id = $1`, [id]);
+      if (vanId) {
+        await c.query(`UPDATE customer_order SET status = 'LOADED_ON_VAN', van_id = $1 WHERE order_id = $2`, [vanId, id]);
+      } else {
+        await c.query(`UPDATE customer_order SET status = 'PICKING' WHERE order_id = $1`, [id]);
+      }
       return created[0].invoice_id;
     });
     return this.get(id);

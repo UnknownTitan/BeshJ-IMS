@@ -31,10 +31,10 @@ describe('Phase 0 - foundation (e2e)', () => {
 
   afterAll(async () => app.close());
 
-  it('API is up and reaches the database (21 tables)', async () => {
+  it('API is up and reaches the database (27 tables)', async () => {
     const res = await request(app.getHttpServer()).get('/api/health').expect(200);
     expect(res.body.database).toBe('connected');
-    expect(res.body.tables).toBe(21);
+    expect(res.body.tables).toBe(27);
   });
 
   it('FR12: a valid user can log in and receives their role', async () => {

@@ -14,6 +14,10 @@ import ReceivingPage from './pages/purchasing/ReceivingPage';
 import OrdersPage from './pages/sales/OrdersPage';
 import InvoicesPage from './pages/sales/InvoicesPage';
 import InvoicePrint from './pages/sales/InvoicePrint';
+import BreakagesPage from './pages/operations/BreakagesPage';
+import EmptiesPage from './pages/operations/EmptiesPage';
+import VansPage from './pages/operations/VansPage';
+import StocktakePage from './pages/operations/StocktakePage';
 import { AuditLogPage, ComingSoon, UsersPage } from './pages/AdminPages';
 
 // Screens that exist so far. Everything else in MENU shows a "coming in Phase N" page.
@@ -26,6 +30,10 @@ const PAGES: Record<string, ReactNode> = {
   '/receiving': <ReceivingPage />,
   '/orders': <OrdersPage />,
   '/invoices': <InvoicesPage />,
+  '/breakages': <BreakagesPage />,
+  '/empties': <EmptiesPage />,
+  '/vans': <VansPage />,
+  '/stocktake': <StocktakePage />,
   '/users': <UsersPage />,
   '/audit-log': <AuditLogPage />,
 };

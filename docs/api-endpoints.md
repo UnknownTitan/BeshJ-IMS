@@ -3,7 +3,7 @@
 Base URL: `http://localhost:3000/api`. Every endpoint except **login** and **health** needs the header
 `Authorization: Bearer <accessToken>`. ADMIN may call every endpoint.
 
-Status: ✅ built (Phases 0–3) · ⬜ planned (phase number shown)
+Status: ✅ built (Phases 0–4) · ⬜ planned (phase number shown)
 
 The table is the team's contract: the frontend and backend developers agree on these paths and payloads before building a phase.
 
@@ -90,17 +90,31 @@ Life cycle: `DRAFT → (submit) → CONFIRMED`, or `PENDING_CREDIT_APPROVAL → 
 | ✅ | GET | `/payments?customerId=` | view roles | Payments received |
 | ✅ | POST | `/payments` | ACCOUNTANT, SALES_REP, DRIVER | `{customer_id, invoice_id?, amount, payment_method, reference?, payment_date?}`; reference required except cash; overpayment refused by `trg_payment_check` |
 
-## Losses, empties, vans, stocktake (UC3, UC7, UC6, UC4)
+## Write-offs, empties, vans, stocktake (UC3, UC7, UC6, UC4; FR6, FR7, FR8)
 
 | Status | Method | Path | Roles | Purpose |
 |---|---|---|---|---|
-| ⬜ 4 | POST | `/write-offs` | STORE_KEEPER, WAREHOUSE_MANAGER | Record breakage / expiry with reason and person responsible |
-| ⬜ 4 | POST | `/write-offs/:id/approve` | WAREHOUSE_MANAGER | Approve above the value threshold |
-| ⬜ 4 | GET | `/empties/balances` | STORE_KEEPER, ACCOUNTANT | View `v_empties_balance` |
-| ⬜ 4 | POST | `/empties/transactions` | STORE_KEEPER, DRIVER | Containers issued / returned, deposit value |
-| ⬜ 4 | POST | `/vans/:id/load` | STORE_KEEPER | Load sheet → VAN_LOAD movements (FEFO) |
-| ⬜ 4 | POST | `/vans/:id/reconcile` | STORE_KEEPER, DRIVER | End-of-day: loaded vs sold vs returned vs damaged |
-| ⬜ 4 | POST | `/stocktakes` · `/stocktakes/:id/counts` · `/stocktakes/:id/post` | WAREHOUSE_MANAGER, STORE_KEEPER | Count, show variances, post adjustments |
+| ✅ | GET | `/write-offs?status=PENDING_APPROVAL` | STORE_KEEPER, WAREHOUSE_MANAGER, MANAGEMENT, ACCOUNTANT | Write-offs with product, batch, value, who recorded/decided |
+| ✅ | GET | `/write-offs/settings` | same | Approval limit (`app_setting`) |
+| ✅ | POST | `/write-offs` | STORE_KEEPER, WAREHOUSE_MANAGER | `{batch_id, quantity, reason_code, description, responsible_user_id?}`; at or under the limit it posts at once (BREAKAGE movement) |
+| ✅ | POST | `/write-offs/:id/approve` | WAREHOUSE_MANAGER | Approve and post (not your own) |
+| ✅ | POST | `/write-offs/:id/reject` | WAREHOUSE_MANAGER | `{note}` required |
+| ✅ | GET | `/empties/positions?customerId=` | empties roles | Containers each customer holds and deposit value (`v_empties_position`) |
+| ✅ | GET | `/empties/transactions?customerId=` | empties roles | History of issues and returns |
+| ✅ | POST | `/empties/returns` | STORE_KEEPER, DRIVER, SALES_REP, ACCOUNTANT | `{customer_id, refund_method: CREDIT\|CASH, lines:[{container_type_id, quantity}]}`; CREDIT lowers the balance; can't return more than held (trigger) |
+| ✅ | POST | `/empties/supplier-returns` | STORE_KEEPER, WAREHOUSE_MANAGER | Empties sent back to a supplier |
+| ✅ | GET | `/vans` | van roles | Vans, drivers, open trip, units on board |
+| ✅ | GET | `/vans/:id/stock` | van roles | Batches on a van |
+| ✅ | GET | `/van-trips?status=` · `/van-trips/:id` | van roles | Trips; detail includes stock on board, sales from the van, cash collected by the driver |
+| ✅ | POST | `/van-trips` | STORE_KEEPER, WAREHOUSE_MANAGER | `{van_id, driver_id?, lines:[{product_id, quantity}]}`; FEFO from the warehouse; one open trip per van |
+| ✅ | POST | `/van-trips/:id/reconcile` | STORE_KEEPER, WAREHOUSE_MANAGER | `{cash_declared, lines:[{product_id, qty_returned, qty_damaged}]}`; returns (VAN_RETURN), breakage (BREAKAGE), shortage (ADJUSTMENT against the driver); van ends empty |
+| ✅ | POST | `/orders/:id/invoice` with `{van_id}` | as invoicing | **Van sale**: picks from the van's stock; order becomes LOADED_ON_VAN |
+| ✅ | GET | `/stocktakes` · `/stocktakes/:id` | STORE_KEEPER, WAREHOUSE_MANAGER, MANAGEMENT, ACCOUNTANT | Counts with summary (differences, units short/over, net value) |
+| ✅ | POST | `/stocktakes` | STORE_KEEPER, WAREHOUSE_MANAGER | `{location_id}`: snapshot of every batch; one open count per location |
+| ✅ | PATCH | `/stocktakes/:id/counts` | STORE_KEEPER, WAREHOUSE_MANAGER | `{counts:[{batch_id, counted_qty}]}` (can be saved in several sittings) |
+| ✅ | POST | `/stocktakes/:id/post` | WAREHOUSE_MANAGER | Every difference becomes an ADJUSTMENT; all batches must be counted |
+| ✅ | POST | `/stocktakes/:id/cancel` | WAREHOUSE_MANAGER | Cancel an open count |
+| ✅ | GET | `/staff` | any | Active staff names (for "person responsible") |
 
 ## Reports and dashboard (UC8, FR11)
 

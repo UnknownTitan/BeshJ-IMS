@@ -78,12 +78,12 @@ export class OrdersController {
     return this.orders.cancel(id, u);
   }
 
-  /** Pick stock (FEFO) and issue the VAT invoice: one transaction. */
+  /** Pick stock (FEFO) and issue the VAT invoice: one transaction. With {van_id}, a van sale from the van's stock. */
   @Post(':id/invoice')
   @HttpCode(200)
   @Roles(Role.SALES_REP, Role.ACCOUNTANT, Role.WAREHOUSE_MANAGER, Role.STORE_KEEPER)
-  invoice(@Param('id', ParseIntPipe) id: number, @CurrentUser() u: AuthUser) {
-    return this.orders.invoice(id, u);
+  invoice(@Param('id', ParseIntPipe) id: number, @Body() dto: DeliverDto, @CurrentUser() u: AuthUser) {
+    return this.orders.invoice(id, u, dto.van_id);
   }
 
   @Post(':id/deliver')
