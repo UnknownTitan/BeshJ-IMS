@@ -8,7 +8,9 @@
     "start": "node dist/main.js",
     "start:dev": "ts-node-dev --respawn --transpile-only src/main.ts",
     "test": "jest --runInBand",
-    "test:e2e": "jest --runInBand --config test/jest-e2e.json"
+    "test:e2e": "jest --runInBand --config test/jest-e2e.json",
+    "db:setup": "node dist/database/setup.js",
+    "db:reset": "node dist/database/setup.js --reset"
   },
   "dependencies": {
     "@nestjs/common": "^10.4.22",
@@ -17,9 +19,11 @@
     "@nestjs/jwt": "^10.2.0",
     "@nestjs/mapped-types": "^2.1.1",
     "@nestjs/platform-express": "^10.4.22",
+    "@nestjs/serve-static": "^4.0.2",
     "bcryptjs": "^3.0.3",
     "class-transformer": "^0.5.1",
     "class-validator": "^0.15.1",
+    "dotenv": "^18.0.10",
     "pg": "^8.23.1",
     "reflect-metadata": "^0.2.2",
     "rxjs": "^7.8.2"
@@ -38,5 +42,8 @@
     "ts-node": "^10.9.2",
     "ts-node-dev": "^2.0.0",
     "typescript": "^5.9.3"
+  },
+  "engines": {
+    "node": ">=20"
   }
 }
