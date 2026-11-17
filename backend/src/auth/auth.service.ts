@@ -1,4 +1,4 @@
-import { Injectable, UnauthorizedException } from '@nestjs/common';
+import { BadRequestException, Injectable, UnauthorizedException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcryptjs';
 import { DatabaseService } from '../database/database.service';
@@ -46,7 +46,28 @@ export class AuthService {
     return { accessToken: await this.jwt.signAsync(payload), user: payload };
   }
 
+  /** Users change their own password; the current one must be correct. */
+  async changePassword(userId: number, current: string, next: string) {
+    const row = await this.db.one<{ password_hash: string }>(
+      `SELECT password_hash FROM app_user WHERE user_id = $1`,
+      [userId],
+    );
+    if (!row || !(await bcrypt.compare(current, row.password_hash))) {
+      throw new BadRequestException('Current password is incorrect');
+    }
+    if (current === next) throw new BadRequestException('Choose a password you have not just used');
+    const hash = await AuthService.hashPassword(next);
+    await this.db.transaction(userId, (c) =>
+      c.query(`UPDATE app_user SET password_hash = $1 WHERE user_id = $2`, [hash, userId]),
+    );
+    return { message: 'Password changed' };
+  }
+
   static hashPassword(plain: string) {
     return bcrypt.hash(plain, 10);
   }
 }
+
+/** At least 8 characters with a letter and a digit. */
+export const PASSWORD_RULE = /^(?=.*[A-Za-z])(?=.*[0-9]).{8,72}$/;
+export const PASSWORD_RULE_MESSAGE = 'Password must be at least 8 characters and include a letter and a number';

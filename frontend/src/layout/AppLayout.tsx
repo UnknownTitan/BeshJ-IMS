@@ -1,5 +1,7 @@
 import { Avatar, Button, Layout, Menu, Space, Tag, Typography } from 'antd';
-import { LogoutOutlined, UserOutlined } from '@ant-design/icons';
+import { KeyOutlined, LogoutOutlined, UserOutlined } from '@ant-design/icons';
+import { useState } from 'react';
+import ChangePasswordModal from './ChangePasswordModal';
 import { Outlet, useLocation, useNavigate } from 'react-router-dom';
 import { ROLE_LABELS, useAuth } from '../auth/AuthContext';
 import { MENU } from './menu';
@@ -10,6 +12,7 @@ export default function AppLayout() {
   const { user, logout, can } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
+  const [pwOpen, setPwOpen] = useState(false);
 
   // Show only the menu items this role may use (FR12).
   const items = MENU.filter((m) => m.roles.length === 0 || can(...m.roles)).map((m) => ({
@@ -40,6 +43,9 @@ export default function AppLayout() {
             <Avatar icon={<UserOutlined />} />
             <Typography.Text strong>{user?.fullName}</Typography.Text>
             <Tag color="blue">{user && ROLE_LABELS[user.role]}</Tag>
+            <Button icon={<KeyOutlined />} onClick={() => setPwOpen(true)}>
+              Change password
+            </Button>
             <Button icon={<LogoutOutlined />} onClick={logout}>
               Log out
             </Button>
@@ -48,6 +54,7 @@ export default function AppLayout() {
         <Content style={{ padding: 24 }}>
           <Outlet />
         </Content>
+        <ChangePasswordModal open={pwOpen} onClose={() => setPwOpen(false)} />
       </Layout>
     </Layout>
   );

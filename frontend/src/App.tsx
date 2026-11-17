@@ -7,12 +7,16 @@ import { MENU } from './layout/menu';
 import LoginPage from './pages/LoginPage';
 import DashboardPage from './pages/DashboardPage';
 import ProductsPage from './pages/ProductsPage';
+import SuppliersPage from './pages/SuppliersPage';
+import CustomersPage from './pages/CustomersPage';
 import { AuditLogPage, ComingSoon, UsersPage } from './pages/AdminPages';
 
 // Screens that exist so far. Everything else in MENU shows a "coming in Phase N" page.
 const PAGES: Record<string, ReactNode> = {
   '/': <DashboardPage />,
   '/products': <ProductsPage />,
+  '/suppliers': <SuppliersPage />,
+  '/customers': <CustomersPage />,
   '/users': <UsersPage />,
   '/audit-log': <AuditLogPage />,
 };

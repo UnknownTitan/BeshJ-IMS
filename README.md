@@ -4,7 +4,9 @@ GIMPA · GSOT707 Database & Programming Concepts · group mini project
 
 A web-based inventory system for a Ghanaian beverage distributor: products and unit conversions, batch and expiry tracking with FEFO picking, purchasing, customer orders and VAT invoices, empties and deposits, van reconciliation, an audit trail and reports. It implements the design in our System Analysis & Design Assignments 1–8.
 
-**Current status: Phase 0 (foundation) complete.** Login, roles, audit trail, product catalogue (read), dashboard with reorder alerts, stock valuation and near-expiry stock.
+**Current status: Phase 1 (master data) complete.**
+- Phase 0: login, 7 roles, audit trail, dashboard with reorder alerts, stock valuation and near-expiry stock.
+- Phase 1: manage users (create, edit, deactivate, reset password), change your own password, products with unit conversions and barcode lookup, suppliers, and customers with credit control (only an Accountant can give credit).
 
 ## Stack
 
@@ -89,7 +91,9 @@ npm run dev                   # http://localhost:5173
 cd backend && npm run test:e2e
 ```
 
-10 tests cover login, wrong password, role restrictions, the audit trail, reorder alerts and FEFO picking. Each test names the requirement it checks (FR1–FR12), so the results can go straight into the report's testing chapter.
+28 tests cover login, roles, the audit trail, reorder alerts, FEFO picking, product rules (price, returnable containers, duplicate SKU), suppliers, customer credit control, and user management. Each test names the requirement it checks (FR1–FR12), so the results can go straight into the report's testing chapter.
+
+The tests add their own rows (e.g. "Test Spot 0385155"), so **reset the database before a demo**.
 
 ## Database features worth showing in the report and Q&A
 
@@ -112,7 +116,7 @@ cd backend && npm run test:e2e
 | Phase | Weeks | Scope |
 |---|---|---|
 | 0 Setup ✅ | 1 | Repo, database, API and UI skeletons, auth, audit, endpoint list |
-| 1 Foundation | 2 | Users CRUD, products/suppliers/customers CRUD (UC10, UC1) |
+| 1 Foundation ✅ | 2 | Users CRUD, products/suppliers/customers CRUD (UC10, UC1) |
 | 2 Stock in | 3 | Purchase orders, approvals, receiving with batch and expiry (UC2, UC5) |
 | 3 Stock out | 4 | Orders, credit check, FEFO, VAT invoice, payments (UC9): **main demo flow** |
 | 4 Extras | 5 | Breakages, empties, van reconciliation, stocktake (UC3, UC7, UC6, UC4) |

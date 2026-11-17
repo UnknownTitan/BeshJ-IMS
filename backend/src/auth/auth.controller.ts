@@ -1,11 +1,16 @@
 import { Body, Controller, Get, HttpCode, Post } from '@nestjs/common';
-import { IsNotEmpty, IsString } from 'class-validator';
-import { AuthService } from './auth.service';
+import { IsNotEmpty, IsString, Matches } from 'class-validator';
+import { AuthService, PASSWORD_RULE, PASSWORD_RULE_MESSAGE } from './auth.service';
 import { AuthUser, CurrentUser, Public } from '../common/roles';
 
 class LoginDto {
   @IsString() @IsNotEmpty() username: string;
   @IsString() @IsNotEmpty() password: string;
+}
+
+class ChangePasswordDto {
+  @IsString() @IsNotEmpty() current_password: string;
+  @Matches(PASSWORD_RULE, { message: PASSWORD_RULE_MESSAGE }) new_password: string;
 }
 
 @Controller('auth')
@@ -24,5 +29,12 @@ export class AuthController {
   @Get('me')
   me(@CurrentUser() user: AuthUser) {
     return user;
+  }
+
+  /** POST /api/auth/change-password */
+  @Post('change-password')
+  @HttpCode(200)
+  changePassword(@Body() dto: ChangePasswordDto, @CurrentUser() user: AuthUser) {
+    return this.auth.changePassword(user.userId, dto.current_password, dto.new_password);
   }
 }
