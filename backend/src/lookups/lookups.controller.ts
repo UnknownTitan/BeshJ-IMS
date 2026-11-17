@@ -24,4 +24,10 @@ export class LookupsController {
         ORDER BY l.location_type DESC, l.location_name`,
     );
   }
+
+  /** Active staff names and roles, e.g. to name who was responsible for a breakage. */
+  @Get('staff')
+  staff() {
+    return this.db.query(`SELECT user_id, full_name, role FROM app_user WHERE is_active ORDER BY full_name`);
+  }
 }

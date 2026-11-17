@@ -30,9 +30,13 @@ export default function OrderDetail({ order, onClose, onChanged, onEdit }: Props
   const [vanOpen, setVanOpen] = useState(false);
   const [vans, setVans] = useState<any[]>([]);
   const [vanId, setVanId] = useState<number | undefined>();
+  const [invoiceOpen, setInvoiceOpen] = useState(false);
+  const [source, setSource] = useState<number>(0);
+  const [vansOut, setVansOut] = useState<any[]>([]);
 
   useEffect(() => {
     get('/locations').then((l) => setVans(l.filter((x: any) => x.location_type === 'VAN')));
+    get('/vans').then((v) => setVansOut(v.filter((x: any) => x.open_trip_id)));
   }, []);
 
   const act = async (action: string, label: string, body: object = {}) => {
@@ -86,15 +90,9 @@ export default function OrderDetail({ order, onClose, onChanged, onEdit }: Props
             </Button>
           )}
           {s === 'CONFIRMED' && can('SALES_REP', 'ACCOUNTANT', 'WAREHOUSE_MANAGER', 'STORE_KEEPER') && (
-            <Popconfirm
-              title="Issue invoice and take the goods out of stock?"
-              description="Stock is picked earliest-expiry first. This cannot be undone."
-              onConfirm={() => act('invoice', 'invoiced')}
-            >
-              <Button type="primary" icon={<FileDoneOutlined />} loading={busy === 'invoice'}>
-                Issue invoice
-              </Button>
-            </Popconfirm>
+            <Button type="primary" icon={<FileDoneOutlined />} onClick={() => (setSource(0), setInvoiceOpen(true))}>
+              Issue invoice
+            </Button>
           )}
           {['PICKING', 'LOADED_ON_VAN'].includes(s) && can('SALES_REP', 'DRIVER', 'STORE_KEEPER', 'WAREHOUSE_MANAGER') && (
             <Button icon={<CarOutlined />} onClick={() => (setVanId(order.van_id ?? undefined), setVanOpen(true))}>
@@ -257,6 +255,29 @@ export default function OrderDetail({ order, onClose, onChanged, onEdit }: Props
           onChange={setVanId}
           placeholder="Choose a van"
           options={vans.map((v) => ({ value: v.location_id, label: `${v.location_name} (${v.vehicle_reg})${v.driver_name ? ` · ${v.driver_name}` : ''}` }))}
+        />
+      </Modal>
+
+      <Modal
+        open={invoiceOpen}
+        title="Issue invoice and take the goods out of stock"
+        okText="Issue invoice"
+        okButtonProps={{ loading: busy === 'invoice' }}
+        onCancel={() => setInvoiceOpen(false)}
+        onOk={async () => {
+          const o = await act('invoice', 'invoiced', source ? { van_id: source } : {});
+          if (o) setInvoiceOpen(false);
+        }}
+      >
+        <Typography.Paragraph>Where are the goods coming from? Stock is picked earliest expiry first. This cannot be undone.</Typography.Paragraph>
+        <Select
+          style={{ width: '100%' }}
+          value={source}
+          onChange={setSource}
+          options={[
+            { value: 0, label: 'Main Warehouse - Accra' },
+            ...vansOut.map((v) => ({ value: v.van_id, label: `Van sale: ${v.location_name} (${v.open_trip_no}, ${v.units_on_board} units on board)` })),
+          ]}
         />
       </Modal>
 
