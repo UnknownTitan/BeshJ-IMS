@@ -116,7 +116,7 @@ export default function OrderForm({ draft, onClose, onSaved }: { draft: OrderDra
           />
         </Form.Item>
         {customer && (
-          <Descriptions size="small" column={4} style={{ marginBottom: 16 }}>
+          <Descriptions size="small" column={{ xs: 1, sm: 2, lg: 4 }} style={{ marginBottom: 16 }}>
             <Descriptions.Item label="Terms">
               <Tag color={customer.payment_terms === 'CREDIT' ? 'blue' : 'default'}>{customer.payment_terms}</Tag>
             </Descriptions.Item>

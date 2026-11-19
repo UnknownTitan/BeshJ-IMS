@@ -87,12 +87,12 @@ export default function EmptiesPage() {
         </Space>
       </Space>
       <Row gutter={16} style={{ marginBottom: 16 }}>
-        <Col span={8}>
+        <Col xs={24} sm={8}>
           <Card size="small">
             <Statistic title="Deposits held by customers" value={cedi(totalHeld)} />
           </Card>
         </Col>
-        <Col span={8}>
+        <Col xs={24} sm={8}>
           <Card size="small">
             <Statistic title="Customers holding containers" value={new Set(positions.filter((p) => p.containers_held > 0).map((p) => p.customer_id)).size} />
           </Card>

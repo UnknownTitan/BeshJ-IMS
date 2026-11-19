@@ -86,7 +86,7 @@ export default function ProductsPage() {
         dataSource={rows}
         onRow={(r) => ({ onClick: () => open(r.product_id), style: { cursor: 'pointer' } })}
         columns={[
-          { title: 'SKU', dataIndex: 'sku', className: 'nowrap' },
+          { title: 'SKU', responsive: ['sm'], dataIndex: 'sku', className: 'nowrap' },
           { title: 'Brand', dataIndex: 'brand', responsive: ['xl'] },
           {
             title: 'Product',
@@ -95,7 +95,7 @@ export default function ProductsPage() {
             render: (n: string, r) => (r.is_active ? n : <Typography.Text type="secondary">{n} <Tag>Inactive</Tag></Typography.Text>),
           },
           { title: 'Category', dataIndex: 'category_name', responsive: ['lg'] },
-          { title: 'Pack', className: 'nowrap', render: (_, r) => `${r.pack_size_ml} ml ${r.packaging}` },
+          { title: 'Pack', responsive: ['sm'], className: 'nowrap', render: (_, r) => `${r.pack_size_ml} ml ${r.packaging}` },
           { title: 'Selling price', dataIndex: 'selling_price', align: 'right', render: (v: number) => `GH₵\u00a0${v.toFixed(2)}` },
           {
             title: 'In warehouse',

@@ -168,16 +168,16 @@ export default function StocktakePage() {
         {st && (
           <>
             <Row gutter={16} style={{ marginBottom: 16 }}>
-              <Col span={6}>
+              <Col xs={24} sm={6}>
                 <Statistic title="Batches counted" value={`${st.summary.counted} / ${st.summary.batches}`} />
               </Col>
-              <Col span={6}>
+              <Col xs={24} sm={6}>
                 <Statistic title="Differences" value={st.summary.differences} />
               </Col>
-              <Col span={6}>
+              <Col xs={24} sm={6}>
                 <Statistic title="Units short / over" value={`${st.summary.units_short} / ${st.summary.units_over}`} />
               </Col>
-              <Col span={6}>
+              <Col xs={24} sm={6}>
                 <Statistic
                   title="Net value at cost"
                   value={cedi(st.summary.net_value)}

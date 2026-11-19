@@ -148,14 +148,14 @@ export default function BreakagesPage() {
         }}
         columns={[
           { title: 'No.', dataIndex: 'write_off_no', className: 'nowrap' },
-          { title: 'Recorded', dataIndex: 'recorded_at', render: dateTime },
+          { title: 'Recorded', responsive: ['sm'], dataIndex: 'recorded_at', render: dateTime },
           { title: 'Product', dataIndex: 'product_name' },
-          { title: 'Batch', render: (_, r: any) => `${r.batch_no} (exp. ${date(r.expiry_date)})` },
-          { title: 'Where', dataIndex: 'location_name' },
+          { title: 'Batch', responsive: ['md'], render: (_, r: any) => `${r.batch_no} (exp. ${date(r.expiry_date)})` },
+          { title: 'Where', responsive: ['md'], dataIndex: 'location_name' },
           { title: 'Qty', dataIndex: 'quantity', align: 'right' },
-          { title: 'Reason', dataIndex: 'reason_code', render: (c: string) => REASONS[c] },
+          { title: 'Reason', responsive: ['sm'], dataIndex: 'reason_code', render: (c: string) => REASONS[c] },
           { title: 'Value', dataIndex: 'write_off_value', align: 'right', render: cedi },
-          { title: 'By', dataIndex: 'recorded_by_name' },
+          { title: 'By', responsive: ['lg'], dataIndex: 'recorded_by_name' },
           { title: 'Status', dataIndex: 'status', render: (s: string) => <Tag color={STATUS[s].color}>{STATUS[s].label}</Tag> },
           {
             title: '',

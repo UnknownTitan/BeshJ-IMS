@@ -141,7 +141,7 @@ export default function OrderDetail({ order, onClose, onChanged, onEdit }: Props
         />
       )}
 
-      <Descriptions size="small" bordered column={2} style={{ marginBottom: 16 }}>
+      <Descriptions size="small" bordered column={{ xs: 1, sm: 2 }} style={{ marginBottom: 16 }}>
         <Descriptions.Item label="Customer">{order.customer_name}</Descriptions.Item>
         <Descriptions.Item label="Phone · GPS">
           {order.customer_phone} · {order.gps_address}

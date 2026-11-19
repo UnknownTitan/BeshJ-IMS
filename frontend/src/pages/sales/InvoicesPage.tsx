@@ -23,17 +23,17 @@ export default function InvoicesPage() {
     <Card>
       <Typography.Title level={4}>Invoices and payments</Typography.Title>
       <Row gutter={16} style={{ marginBottom: 16 }}>
-        <Col span={8}>
+        <Col xs={24} sm={8}>
           <Card size="small">
             <Statistic title="Owed to BESH (shown invoices)" value={cedi(owed)} />
           </Card>
         </Col>
-        <Col span={8}>
+        <Col xs={24} sm={8}>
           <Card size="small">
             <Statistic title="Overdue invoices" value={overdue.length} valueStyle={{ color: overdue.length ? '#cf1322' : undefined }} />
           </Card>
         </Col>
-        <Col span={8}>
+        <Col xs={24} sm={8}>
           <Card size="small">
             <Statistic title="Overdue amount" value={cedi(overdue.reduce((s, r) => s + r.outstanding, 0))} />
           </Card>
@@ -54,9 +54,9 @@ export default function InvoicesPage() {
         columns={[
           { title: 'Invoice', dataIndex: 'invoice_no', className: 'nowrap' },
           { title: 'Customer', dataIndex: 'customer_name' },
-          { title: 'Issued', dataIndex: 'created_at', render: dateTime, sorter: (a: any, b: any) => +new Date(a.created_at) - +new Date(b.created_at) },
+          { title: 'Issued', responsive: ['sm'], dataIndex: 'created_at', render: dateTime, sorter: (a: any, b: any) => +new Date(a.created_at) - +new Date(b.created_at) },
           {
-            title: 'Due',
+            title: 'Due', responsive: ['sm'],
             dataIndex: 'due_date',
             render: (d: string, r: any) => (
               <Space>
@@ -66,7 +66,7 @@ export default function InvoicesPage() {
             ),
           },
           { title: 'Total', dataIndex: 'total_amount', align: 'right', render: cedi },
-          { title: 'Paid', dataIndex: 'amount_paid', align: 'right', render: cedi },
+          { title: 'Paid', responsive: ['md'], dataIndex: 'amount_paid', align: 'right', render: cedi },
           {
             title: 'Outstanding',
             dataIndex: 'outstanding',

@@ -74,22 +74,22 @@ export default function ProductForm({ product, onClose, onSaved }: Props) {
       <RecordStamp entity="products" id={isNew ? null : product?.product_id} />
       <Form form={form} layout="vertical" requiredMark="optional">
         <Row gutter={12}>
-          <Col span={12}>
+          <Col xs={24} sm={12}>
             <Form.Item name="brand" label="Brand" rules={[{ required: true }]}>
               <Input maxLength={50} />
             </Form.Item>
           </Col>
-          <Col span={12}>
+          <Col xs={24} sm={12}>
             <Form.Item name="product_name" label="Product name" rules={[{ required: true }]}>
               <Input maxLength={100} placeholder="e.g. Coca-Cola Original 300 ml glass" />
             </Form.Item>
           </Col>
-          <Col span={12}>
+          <Col xs={24} sm={12}>
             <Form.Item name="sku" label="SKU" rules={[{ required: true }]}>
               <Input maxLength={20} placeholder="e.g. CC-300-GL" />
             </Form.Item>
           </Col>
-          <Col span={12}>
+          <Col xs={24} sm={12}>
             <Form.Item
               name="barcode"
               label="Barcode"
@@ -99,12 +99,12 @@ export default function ProductForm({ product, onClose, onSaved }: Props) {
               <Input maxLength={13} />
             </Form.Item>
           </Col>
-          <Col span={12}>
+          <Col xs={24} sm={12}>
             <Form.Item name="category_id" label="Category" rules={[{ required: true }]}>
               <Select options={lists.categories.map((c) => ({ value: c.category_id, label: c.category_name }))} />
             </Form.Item>
           </Col>
-          <Col span={12}>
+          <Col xs={24} sm={12}>
             <Form.Item name="supplier_id" label="Supplier" rules={[{ required: true }]}>
               <Select
                 showSearch
@@ -119,17 +119,17 @@ export default function ProductForm({ product, onClose, onSaved }: Props) {
           Pack
         </Divider>
         <Row gutter={12}>
-          <Col span={8}>
+          <Col xs={24} sm={8}>
             <Form.Item name="pack_size_ml" label="Size (ml)" rules={[{ required: true }]}>
               <InputNumber min={1} style={{ width: '100%' }} />
             </Form.Item>
           </Col>
-          <Col span={8}>
+          <Col xs={24} sm={8}>
             <Form.Item name="packaging" label="Packaging" rules={[{ required: true }]}>
               <Select options={['GLASS', 'PET', 'CAN', 'KEG'].map((v) => ({ value: v, label: v }))} />
             </Form.Item>
           </Col>
-          <Col span={8}>
+          <Col xs={24} sm={8}>
             <Form.Item name="base_unit" label="Counted in" rules={[{ required: true }]} tooltip="Stock is always held in this unit">
               <Select
                 options={[
@@ -140,7 +140,7 @@ export default function ProductForm({ product, onClose, onSaved }: Props) {
               />
             </Form.Item>
           </Col>
-          <Col span={24}>
+          <Col xs={24} sm={24}>
             <Form.Item name="container_type_id" label="Returnable container (empties)">
               <Select
                 allowClear
@@ -188,12 +188,12 @@ export default function ProductForm({ product, onClose, onSaved }: Props) {
           Prices and stock control
         </Divider>
         <Row gutter={12}>
-          <Col span={8}>
+          <Col xs={24} sm={8}>
             <Form.Item name="cost_price" label="Cost price (GH₵)" rules={[{ required: true }]}>
               <InputNumber min={0} step={0.1} precision={2} style={{ width: '100%' }} />
             </Form.Item>
           </Col>
-          <Col span={8}>
+          <Col xs={24} sm={8}>
             <Form.Item
               name="selling_price"
               label="Selling price (GH₵)"
@@ -211,13 +211,13 @@ export default function ProductForm({ product, onClose, onSaved }: Props) {
               <InputNumber min={0} step={0.1} precision={2} style={{ width: '100%' }} />
             </Form.Item>
           </Col>
-          <Col span={8}>
+          <Col xs={24} sm={8}>
             <Form.Item name="reorder_level" label="Reorder level" rules={[{ required: true }]} tooltip="Alert when warehouse stock falls to this">
               <InputNumber min={0} style={{ width: '100%' }} />
             </Form.Item>
           </Col>
           {!isNew && (
-            <Col span={24}>
+            <Col xs={24} sm={24}>
               <Form.Item name="is_active" label="Active" valuePropName="checked">
                 <Switch />
               </Form.Item>

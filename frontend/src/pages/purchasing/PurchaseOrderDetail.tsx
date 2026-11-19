@@ -103,7 +103,7 @@ export default function PurchaseOrderDetail({ po, onClose, onChanged, onEdit, on
         />
       )}
 
-      <Descriptions size="small" bordered column={2} style={{ marginBottom: 16 }}>
+      <Descriptions size="small" bordered column={{ xs: 1, sm: 2 }} style={{ marginBottom: 16 }}>
         <Descriptions.Item label="Supplier">{po.supplier_name}</Descriptions.Item>
         <Descriptions.Item label="Supplier contact">{[po.supplier_phone, po.supplier_email].filter(Boolean).join(' · ')}</Descriptions.Item>
         <Descriptions.Item label="Order date">{date(po.po_date)}</Descriptions.Item>

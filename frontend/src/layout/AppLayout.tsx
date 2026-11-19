@@ -21,6 +21,7 @@ export default function AppLayout() {
   const [menuOpen, setMenuOpen] = useState(false);
   const screens = Grid.useBreakpoint();
   const wide = screens.xl ?? window.innerWidth >= 1200;
+  const phone = !(screens.sm ?? window.innerWidth >= 576);
 
   // Show only the menu items this role may use (FR12).
   const items = MENU.filter((m) => m.roles.length === 0 || can(...m.roles)).map((m) => ({
@@ -106,16 +107,19 @@ export default function AppLayout() {
             >
               <Button type="text" size="large" style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
                 <Avatar size="small" icon={<UserOutlined />} />
-                <span>{user?.fullName}</span>
-                <Tag color="blue" style={{ margin: 0 }}>
-                  {user && ROLE_LABELS[user.role]}
-                </Tag>
+                {/* On a phone the name and role move into the menu */}
+                {!phone && <span>{user?.fullName}</span>}
+                {!phone && (
+                  <Tag color="blue" style={{ margin: 0 }}>
+                    {user && ROLE_LABELS[user.role]}
+                  </Tag>
+                )}
                 <DownOutlined style={{ fontSize: 11 }} />
               </Button>
             </Dropdown>
           )}
         </Header>
-        <Content style={{ padding: wide ? 24 : 16 }}>
+        <Content style={{ padding: wide ? 24 : phone ? 8 : 16 }}>
           <Outlet />
         </Content>
         <ChangePasswordModal open={pwOpen} onClose={() => setPwOpen(false)} />
@@ -124,7 +128,7 @@ export default function AppLayout() {
       {!wide && (
         <Drawer
           placement="left"
-          width={280}
+          width={phone ? '82%' : 280}
           open={menuOpen}
           onClose={() => setMenuOpen(false)}
           closable={false}

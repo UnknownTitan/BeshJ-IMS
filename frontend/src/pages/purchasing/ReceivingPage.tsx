@@ -172,18 +172,18 @@ export default function ReceivingPage() {
         <Alert type="warning" showIcon message={`This order is ${po.status} and cannot receive goods.`} />
       ) : (
         <Form form={form} layout="vertical" requiredMark="optional">
-          <Descriptions size="small" column={3} style={{ marginBottom: 16 }}>
+          <Descriptions size="small" column={{ xs: 1, sm: 2, md: 3 }} style={{ marginBottom: 16 }}>
             <Descriptions.Item label="Supplier">{po.supplier_name}</Descriptions.Item>
             <Descriptions.Item label="Expected">{date(po.expected_date)}</Descriptions.Item>
             <Descriptions.Item label="Into">Main Warehouse - Accra</Descriptions.Item>
           </Descriptions>
           <Row gutter={12}>
-            <Col span={8}>
+            <Col xs={24} sm={8}>
               <Form.Item name="delivery_note_no" label="Supplier's delivery note no." rules={[{ required: true }]}>
                 <Input maxLength={30} placeholder="e.g. DN-CCBG-78120" />
               </Form.Item>
             </Col>
-            <Col span={16}>
+            <Col xs={24} sm={16}>
               <Form.Item name="notes" label="Notes">
                 <Input maxLength={200} placeholder="e.g. Driver arrived late; seal intact" />
               </Form.Item>

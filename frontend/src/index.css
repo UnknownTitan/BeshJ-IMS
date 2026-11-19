@@ -27,3 +27,43 @@ body { margin: 0; background: #f5f6f8; }
 
 /* Document numbers, batch numbers and dates are read as one word. */
 .nowrap { white-space: nowrap; }
+
+/* ------------------------------------------------------------------ phones */
+@media (max-width: 575px) {
+  /* Side panels: the title on its own line, the action buttons wrap underneath */
+  .ant-drawer .ant-drawer-header { flex-wrap: wrap; row-gap: 8px; padding: 12px 16px; }
+  .ant-drawer .ant-drawer-header-title { min-width: 0; flex: 1 1 60%; }
+  .ant-drawer .ant-drawer-extra { flex: 1 1 100%; }
+  .ant-drawer .ant-drawer-extra .ant-space { flex-wrap: wrap; justify-content: flex-end; width: 100%; }
+  .ant-drawer .ant-drawer-body { padding: 12px; }
+
+  /* Status tabs scroll sideways instead of running off the screen */
+  .ant-segmented { max-width: 100%; overflow-x: auto; scrollbar-width: none; }
+  .ant-segmented::-webkit-scrollbar { display: none; }
+
+  /* Cards use the width */
+  .ant-card .ant-card-body { padding: 12px; }
+  .ant-card .ant-card-head { padding: 0 12px; }
+
+  /* A product picker inside an order or purchase-order line stays wide enough to read */
+  .ant-table-cell .ant-select { min-width: 190px; }
+  .ant-table-cell .ant-input-number { min-width: 90px; }
+
+  /* Totals boxes fill the width instead of floating right */
+  .ant-descriptions { max-width: 100% !important; }
+
+  /* Rows of fields inside a panel (a product and its quantity) wrap onto two lines */
+  .ant-drawer-body .ant-space-horizontal { flex-wrap: wrap; }
+  .ant-drawer-body .ant-select,
+  .ant-modal-body .ant-select { max-width: 100%; }
+
+  /* Page titles and their main button wrap neatly */
+  .ant-typography h4, h4.ant-typography { font-size: 18px; }
+}
+
+/* A side panel slides in from off-screen. Clip that area so phones don't widen the
+   page to fit the panel mid-slide (which leaves the whole page zoomed out). */
+.ant-drawer { overflow: hidden; }
+/* Panels waiting off-screen must not widen the page either. "clip" (unlike
+   "hidden") doesn't turn the page into a scroll box, so the sticky header still works. */
+html, body { overflow-x: hidden; overflow-x: clip; }

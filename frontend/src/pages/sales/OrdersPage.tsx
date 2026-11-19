@@ -82,7 +82,7 @@ export default function OrdersPage() {
         onRow={(r) => ({ onClick: () => open(r.order_id), style: { cursor: 'pointer' } })}
         columns={[
           { title: 'Order', dataIndex: 'order_no', className: 'nowrap' },
-          { title: 'Date', dataIndex: 'order_date', render: date },
+          { title: 'Date', responsive: ['sm'], dataIndex: 'order_date', render: date },
           { title: 'Customer', dataIndex: 'customer_name', onCell: () => ({ style: { minWidth: 170 } }) },
           {
             title: 'Status',
@@ -96,7 +96,7 @@ export default function OrdersPage() {
             render: (_, r: any) => cedi(r.total_amount ?? r.subtotal),
           },
           {
-            title: 'Outstanding',
+            title: 'Outstanding', responsive: ['sm'],
             dataIndex: 'outstanding',
             align: 'right',
             render: (o: number | null) => (o == null ? '—' : o > 0 ? <span style={{ color: '#cf1322' }}>{cedi(o)}</span> : cedi(0)),
