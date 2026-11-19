@@ -12,43 +12,89 @@ import {
   Row,
   Select,
   Space,
+  Switch,
   Table,
   Tag,
   Typography,
   message,
 } from 'antd';
-import { CarOutlined, CheckSquareOutlined, DeleteOutlined, PlusOutlined } from '@ant-design/icons';
+import { CarOutlined, CheckSquareOutlined, DeleteOutlined, EditOutlined, PlusOutlined } from '@ant-design/icons';
 import { useEffect, useMemo, useState } from 'react';
-import { get, post } from '../../api/client';
+import { get, patch, post } from '../../api/client';
 import { useAuth } from '../../auth/AuthContext';
 import { cedi, date, dateTime, qtyWithPacks } from '../../format';
 
-/** UC6 - load vans in the morning, reconcile them in the evening. */
+/** UC6 - manage the fleet, load vans in the morning, reconcile them in the evening. */
 export default function VansPage() {
   const { can } = useAuth();
   const [vans, setVans] = useState<any[]>([]);
   const [trips, setTrips] = useState<any[]>([]);
   const [products, setProducts] = useState<any[]>([]);
   const [staff, setStaff] = useState<any[]>([]);
+  const [depots, setDepots] = useState<any[]>([]);
+  const [onHand, setOnHand] = useState<any[]>([]);
+  const [editVan, setEditVan] = useState<any | null>(null); // {} = new van
   const [loadVan, setLoadVan] = useState<any | null>(null);
   const [trip, setTrip] = useState<any | null>(null);
   const [saving, setSaving] = useState(false);
   const [loadForm] = Form.useForm();
   const [recForm] = Form.useForm();
+  const [vanForm] = Form.useForm();
   const lines: any[] = Form.useWatch('lines', loadForm) ?? [];
   const counts = Form.useWatch('counts', recForm) ?? {};
   const cashDeclared = Form.useWatch('cash_declared', recForm);
   const canOperate = can('STORE_KEEPER', 'WAREHOUSE_MANAGER');
+  const canManage = can('WAREHOUSE_MANAGER');
 
-  const load = () => Promise.all([get('/vans'), get('/van-trips')]).then(([v, t]) => (setVans(v), setTrips(t)));
+  const load = () =>
+    Promise.all([get('/vans'), get('/van-trips'), get('/stock/on-hand')]).then(([v, t, h]) => (setVans(v), setTrips(t), setOnHand(h)));
   useEffect(() => {
     load();
-    Promise.all([get('/products'), get('/staff')]).then(([p, s]) => {
+    Promise.all([get('/products'), get('/staff'), get('/locations')]).then(([p, s, l]) => {
       setProducts(p);
       setStaff(s.filter((x: any) => x.role === 'DRIVER'));
+      setDepots(l.filter((x: any) => x.location_type === 'WAREHOUSE').sort((a: any, b: any) => a.location_id - b.location_id));
     });
   }, []);
   const productById = useMemo(() => new Map(products.map((p) => [p.product_id, p])), [products]);
+
+  /** Stock of each product at the depot the van being loaded is based at. */
+  const depotQty = useMemo(() => {
+    const m = new Map<number, number>();
+    if (!loadVan) return m;
+    for (const r of onHand) if (r.location_name === loadVan.home_name) m.set(r.product_id, (m.get(r.product_id) ?? 0) + Number(r.qty_on_hand));
+    return m;
+  }, [onHand, loadVan]);
+
+  const openVanForm = (v: any | null) => {
+    vanForm.resetFields();
+    vanForm.setFieldsValue(
+      v
+        ? { location_name: v.location_name, vehicle_reg: v.vehicle_reg, home_location_id: v.home_location_id, driver_id: v.driver_id, is_active: v.is_active }
+        : { home_location_id: depots[0]?.location_id, is_active: true },
+    );
+    setEditVan(v ?? {});
+  };
+
+  const saveVan = async () => {
+    const v = await vanForm.validateFields();
+    const body = { ...v, driver_id: v.driver_id ?? null };
+    setSaving(true);
+    try {
+      const saved = editVan.van_id ? await patch(`/vans/${editVan.van_id}`, body) : await post('/vans', { ...body, is_active: undefined });
+      message.success(editVan.van_id ? `${saved.location_name} updated` : `${saved.location_name} added`);
+      setEditVan(null);
+      load();
+    } catch (e: any) {
+      message.error(e.message);
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  /** Which van each driver is already assigned to. */
+  const driverVan = useMemo(() => new Map(vans.filter((v) => v.driver_id).map((v) => [v.driver_id, v])), [vans]);
+  const isOut = !!editVan?.open_trip_id;
 
   const openTrip = (id: number) =>
     get(`/van-trips/${id}`).then((t) => {
@@ -108,26 +154,57 @@ export default function VansPage() {
 
   return (
     <>
-      <Typography.Title level={4}>Vans</Typography.Title>
+      <Space style={{ width: '100%', justifyContent: 'space-between', marginBottom: 12 }}>
+        <Typography.Title level={4} style={{ margin: 0 }}>
+          Vans
+        </Typography.Title>
+        {canManage && (
+          <Button type="primary" icon={<PlusOutlined />} onClick={() => openVanForm(null)}>
+            Add van
+          </Button>
+        )}
+      </Space>
       <Row gutter={16} style={{ marginBottom: 16 }}>
         {vans.map((v) => (
           <Col xs={24} md={8} key={v.van_id}>
             <Card
+              style={{ marginBottom: 16, opacity: v.is_active ? 1 : 0.6 }}
               title={
                 <Space>
                   <CarOutlined />
                   {v.location_name}
                 </Space>
               }
-              extra={v.open_trip_id ? <Badge status="processing" text="Out on trip" /> : <Badge status="default" text="At depot" />}
+              extra={
+                !v.is_active ? (
+                  <Tag>Retired</Tag>
+                ) : v.open_trip_id ? (
+                  <Badge status="processing" text="Out on trip" />
+                ) : (
+                  <Badge status="default" text="At depot" />
+                )
+              }
             >
               <Descriptions size="small" column={1}>
                 <Descriptions.Item label="Registration">{v.vehicle_reg}</Descriptions.Item>
-                <Descriptions.Item label="Driver">{v.driver_name ?? '—'}</Descriptions.Item>
+                <Descriptions.Item label="Home depot">{v.home_name}</Descriptions.Item>
+                <Descriptions.Item label="Driver">
+                  {v.driver_name ? (
+                    <Space size={4}>
+                      {v.driver_name}
+                      {!v.driver_active && <Tag color="red">inactive user</Tag>}
+                    </Space>
+                  ) : v.is_active ? (
+                    <Typography.Text type="warning">None assigned</Typography.Text>
+                  ) : (
+                    '—'
+                  )}
+                </Descriptions.Item>
                 <Descriptions.Item label="On board">{v.units_on_board} units</Descriptions.Item>
+                <Descriptions.Item label="Trips">{v.trips}</Descriptions.Item>
               </Descriptions>
               <Space>
-                {v.open_trip_id ? (
+                {!v.is_active ? null : v.open_trip_id ? (
                   <Button type="primary" icon={<CheckSquareOutlined />} onClick={() => openTrip(v.open_trip_id)}>
                     {canOperate ? 'Reconcile' : 'View trip'} {v.open_trip_no}
                   </Button>
@@ -144,6 +221,11 @@ export default function VansPage() {
                       Load van
                     </Button>
                   )
+                )}
+                {canManage && (
+                  <Button icon={<EditOutlined />} onClick={() => openVanForm(v)}>
+                    Edit
+                  </Button>
                 )}
               </Space>
             </Card>
@@ -193,7 +275,7 @@ export default function VansPage() {
           </Button>
         }
       >
-        <Typography.Paragraph type="secondary">Stock is taken from the Main Warehouse, earliest expiry first.</Typography.Paragraph>
+        <Typography.Paragraph type="secondary">Stock is taken from {loadVan?.home_name ?? 'the depot'}, earliest expiry first.</Typography.Paragraph>
         <Form form={loadForm} layout="vertical" requiredMark="optional">
           <Form.Item name="driver_id" label="Driver" rules={[{ required: true }]} style={{ maxWidth: 320 }}>
             <Select options={staff.map((s) => ({ value: s.user_id, label: s.full_name }))} />
@@ -212,15 +294,15 @@ export default function VansPage() {
                           placeholder="Product"
                           options={products.map((x) => ({
                             value: x.product_id,
-                            label: `${x.product_name} (${x.warehouse_qty} in warehouse)`,
-                            disabled: lines.some((l, i) => i !== f.name && l?.product_id === x.product_id),
+                            label: `${x.product_name} (${depotQty.get(x.product_id) ?? 0} at depot)`,
+                            disabled: !depotQty.get(x.product_id) || lines.some((l, i) => i !== f.name && l?.product_id === x.product_id),
                           }))}
                           onChange={(id) => loadForm.setFieldValue(['lines', f.name, 'quantity'], productById.get(id)?.pack_qty ?? 1)}
                         />
                       </Form.Item>
                       <Form.Item
                         name={[f.name, 'quantity']}
-                        rules={[{ required: true, message: 'Qty' }, { type: 'number', max: p?.warehouse_qty, message: `Only ${p?.warehouse_qty}` }]}
+                        rules={[{ required: true, message: 'Qty' }, { type: 'number', max: depotQty.get(p?.product_id) ?? 0, message: `Only ${depotQty.get(p?.product_id) ?? 0} at the depot` }]}
                         extra={p && lines[f.name]?.quantity ? qtyWithPacks(lines[f.name].quantity, p.base_unit, p.pack_qty) : undefined}
                       >
                         <InputNumber min={1} step={p?.pack_qty ?? 1} style={{ width: 140 }} />
@@ -238,6 +320,76 @@ export default function VansPage() {
           <Form.Item name="notes" label="Notes" style={{ marginTop: 16 }}>
             <Input maxLength={200} placeholder="e.g. Route: Kaneshie, Lapaz, Achimota" />
           </Form.Item>
+        </Form>
+      </Drawer>
+
+      {/* -------------------------------------------------- add / edit van */}
+      <Drawer
+        width={480}
+        open={!!editVan}
+        onClose={() => setEditVan(null)}
+        title={editVan?.van_id ? `Edit ${editVan.location_name}` : 'Add a van'}
+        extra={
+          <Button type="primary" loading={saving} onClick={saveVan}>
+            Save
+          </Button>
+        }
+      >
+        {isOut && (
+          <Alert
+            type="info"
+            showIcon
+            style={{ marginBottom: 16 }}
+            message={`Out on ${editVan.open_trip_no}`}
+            description="The driver, home depot and status can be changed once the trip is reconciled."
+          />
+        )}
+        <Form form={vanForm} layout="vertical" requiredMark="optional">
+          <Form.Item name="location_name" label="Name" rules={[{ required: true, message: 'Give the van a name' }]}>
+            <Input maxLength={50} placeholder="e.g. Van 4 - Kasoa" />
+          </Form.Item>
+          <Form.Item
+            name="vehicle_reg"
+            label="Registration number"
+            normalize={(x: string) => x?.toUpperCase()}
+            rules={[{ required: true, message: 'Enter the registration number' }]}
+          >
+            <Input maxLength={12} placeholder="e.g. GR-1234-24" style={{ maxWidth: 200 }} />
+          </Form.Item>
+          <Form.Item
+            name="home_location_id"
+            label="Home depot"
+            extra="The van is loaded from here and unsold stock returns here."
+            rules={[{ required: true, message: 'Choose a home depot' }]}
+          >
+            <Select disabled={isOut} options={depots.map((d) => ({ value: d.location_id, label: d.location_name }))} />
+          </Form.Item>
+          <Form.Item name="driver_id" label="Regular driver" extra="Only active users with the Driver role are listed. A driver can be on one van at a time.">
+            <Select
+              allowClear
+              disabled={isOut}
+              placeholder="No regular driver"
+              options={staff.map((d) => {
+                const other = driverVan.get(d.user_id);
+                const taken = other && other.van_id !== editVan?.van_id;
+                return { value: d.user_id, label: taken ? `${d.full_name} (on ${other.location_name})` : d.full_name, disabled: taken };
+              })}
+            />
+          </Form.Item>
+          {editVan?.van_id && (
+            <Form.Item
+              name="is_active"
+              label="In service"
+              valuePropName="checked"
+              extra={
+                editVan.units_on_board > 0
+                  ? 'This van still holds stock, so it cannot be retired.'
+                  : 'A retired van keeps its trip history but cannot be loaded, and its driver is freed.'
+              }
+            >
+              <Switch disabled={isOut || (editVan.is_active && editVan.units_on_board > 0)} checkedChildren="Active" unCheckedChildren="Retired" />
+            </Form.Item>
+          )}
         </Form>
       </Drawer>
 
@@ -267,6 +419,7 @@ export default function VansPage() {
           <>
             <Descriptions size="small" bordered column={2} style={{ marginBottom: 16 }}>
               <Descriptions.Item label="Driver">{trip.driver_name}</Descriptions.Item>
+              <Descriptions.Item label="Depot">{trip.depot_name}</Descriptions.Item>
               <Descriptions.Item label="Loaded">
                 {dateTime(trip.loaded_at)} by {trip.loaded_by_name}
               </Descriptions.Item>
