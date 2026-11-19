@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import { get, post } from '../../api/client';
 import { useAuth } from '../../auth/AuthContext';
 import { cedi, date, dateTime } from '../../format';
+import { DocumentTimeline } from '../../history';
 
 const REASONS: Record<string, string> = {
   BROKEN: 'Broken',
@@ -139,6 +140,9 @@ export default function BreakagesPage() {
               {r.responsible_name && ` · Responsible: ${r.responsible_name}`}
               {r.decided_by_name && ` · Decided by ${r.decided_by_name} on ${dateTime(r.decided_at)}`}
               {r.decision_note && ` · "${r.decision_note}"`}
+              <div style={{ marginTop: 12 }}>
+                <DocumentTimeline doc="write-offs" id={r.write_off_id} refreshKey={r.status} />
+              </div>
             </Typography.Text>
           ),
         }}

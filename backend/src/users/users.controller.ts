@@ -36,7 +36,7 @@ export class ResetPasswordDto {
   @Matches(PASSWORD_RULE, { message: PASSWORD_RULE_MESSAGE }) password: string;
 }
 
-const PUBLIC_COLUMNS = `user_id, full_name, username, role, phone, is_active, last_login`;
+const PUBLIC_COLUMNS = `user_id, full_name, username, role, phone, is_active, last_login, created_at, updated_at`;
 
 /** UC10 Manage users and roles. Admin only. */
 @Controller()

@@ -14,6 +14,7 @@ import { get, post } from '../../api/client';
 import { useAuth } from '../../auth/AuthContext';
 import { ORDER_STATUS, PAYMENT_METHODS, cedi, date, dateTime } from '../../format';
 import PaymentModal, { PaymentTarget } from './PaymentModal';
+import { DocumentTimeline } from '../../history';
 
 interface Props {
   order: any | null;
@@ -228,6 +229,7 @@ export default function OrderDetail({ order, onClose, onChanged, onEdit }: Props
             locale={{ emptyText: 'No payments yet' }}
             columns={[
               { title: 'Date', dataIndex: 'payment_date', render: date },
+              { title: 'Recorded', dataIndex: 'created_at', render: dateTime },
               { title: 'Method', dataIndex: 'payment_method', render: (m: string) => PAYMENT_METHODS[m] ?? m },
               { title: 'Reference', dataIndex: 'reference' },
               { title: 'Received by', dataIndex: 'received_by_name' },
@@ -289,6 +291,11 @@ export default function OrderDetail({ order, onClose, onChanged, onEdit }: Props
           reload();
         }}
       />
+
+      <Typography.Title level={5} style={{ marginTop: 24 }}>
+        History
+      </Typography.Title>
+      <DocumentTimeline doc="orders" id={order.order_id} refreshKey={`${order.status}-${order.invoice?.amount_paid ?? ''}`} />
     </Drawer>
   );
 }

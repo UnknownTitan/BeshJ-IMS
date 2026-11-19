@@ -3,6 +3,7 @@ import { EditOutlined, PlusOutlined } from '@ant-design/icons';
 import { useEffect, useState } from 'react';
 import { get, patch, post } from '../api/client';
 import { useAuth } from '../auth/AuthContext';
+import { lastChangedColumn, RecordStamp } from '../history';
 
 /** Suppliers and manufacturers. The Warehouse Manager maintains them. */
 export default function SuppliersPage() {
@@ -62,6 +63,7 @@ export default function SuppliersPage() {
           { title: 'Email', dataIndex: 'email' },
           { title: 'TIN', dataIndex: 'tin' },
           { title: 'Products', dataIndex: 'product_count', align: 'right' },
+          lastChangedColumn,
           ...(canEdit
             ? [{ title: '', key: 'edit', width: 60, render: (_: any, r: any) => <Button size="small" icon={<EditOutlined />} onClick={() => open(r)} /> }]
             : []),
@@ -77,6 +79,7 @@ export default function SuppliersPage() {
         width={620}
         destroyOnClose
       >
+        <RecordStamp entity="suppliers" id={editing && editing !== 'new' ? editing.supplier_id : null} />
         <Form form={form} layout="vertical" requiredMark="optional">
           <Row gutter={12}>
             <Col span={24}>

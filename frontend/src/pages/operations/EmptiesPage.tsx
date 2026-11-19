@@ -3,7 +3,7 @@ import { RollbackOutlined, ShopOutlined } from '@ant-design/icons';
 import { useEffect, useState } from 'react';
 import { get, post } from '../../api/client';
 import { useAuth } from '../../auth/AuthContext';
-import { cedi, date } from '../../format';
+import { cedi, dateTime } from '../../format';
 
 /** UC7 - crates, bottles and kegs customers hold, returns and deposit refunds. */
 export default function EmptiesPage() {
@@ -137,7 +137,7 @@ export default function EmptiesPage() {
                 rowKey="empties_txn_id"
                 dataSource={txns}
                 columns={[
-                  { title: 'Date', dataIndex: 'txn_date', render: date },
+                  { title: 'When', dataIndex: 'created_at', render: dateTime },
                   { title: 'Customer / supplier', render: (_, r: any) => r.customer_name ?? `${r.supplier_name} (supplier)` },
                   { title: 'Container', dataIndex: 'container_name' },
                   { title: 'Direction', dataIndex: 'direction', render: (d: string) => <Tag color={d === 'ISSUED' ? 'blue' : 'green'}>{d}</Tag> },

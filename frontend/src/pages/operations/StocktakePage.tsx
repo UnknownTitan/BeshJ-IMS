@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import { get, patch, post } from '../../api/client';
 import { useAuth } from '../../auth/AuthContext';
 import { cedi, date, dateTime } from '../../format';
+import { DocumentTimeline } from '../../history';
 
 const STATUS: Record<string, string> = { COUNTING: 'blue', POSTED: 'green', CANCELLED: 'default' };
 
@@ -221,6 +222,14 @@ export default function StocktakePage() {
                 ]}
               />
             </Form>
+          </>
+        )}
+        {st && (
+          <>
+            <Typography.Title level={5} style={{ marginTop: 24 }}>
+              History
+            </Typography.Title>
+            <DocumentTimeline doc="stocktakes" id={st.stocktake_id} refreshKey={st.status} />
           </>
         )}
       </Drawer>

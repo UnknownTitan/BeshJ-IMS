@@ -10,6 +10,7 @@ export const PASSWORD_RULES = [
   { pattern: /^(?=.*[A-Za-z])(?=.*[0-9]).{8,72}$/, message: 'At least 8 characters, with a letter and a number' },
 ];
 import { MenuEntry } from '../layout/menu';
+import { lastChangedColumn, RecordStamp } from '../history';
 
 /** UC10 - manage users and roles (Admin). */
 export function UsersPage() {
@@ -83,6 +84,7 @@ export function UsersPage() {
           { title: 'Phone', dataIndex: 'phone' },
           { title: 'Active', dataIndex: 'is_active', render: (a: boolean) => (a ? <Tag color="green">Yes</Tag> : <Tag>No</Tag>) },
           { title: 'Last login', dataIndex: 'last_login', render: (d: string | null) => (d ? new Date(d).toLocaleString() : '—') },
+          lastChangedColumn,
           {
             title: '',
             key: 'actions',
@@ -110,6 +112,7 @@ export function UsersPage() {
         onCancel={() => setEditing(null)}
         destroyOnClose
       >
+        <RecordStamp entity="users" id={editing && editing !== 'new' ? editing.user_id : null} />
         <Form form={form} layout="vertical" requiredMark="optional">
           <Form.Item name="full_name" label="Full name" rules={[{ required: true }]}>
             <Input maxLength={80} />

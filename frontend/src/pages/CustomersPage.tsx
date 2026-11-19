@@ -3,6 +3,7 @@ import { EditOutlined, PlusOutlined } from '@ant-design/icons';
 import { useEffect, useState } from 'react';
 import { get, patch, post } from '../api/client';
 import { useAuth } from '../auth/AuthContext';
+import { lastChangedColumn, RecordStamp } from '../history';
 
 const cedi = (n: number | null) => (n == null ? '—' : `GH₵ ${Number(n).toLocaleString('en-GH', { minimumFractionDigits: 2 })}`);
 const TYPES = ['RETAILER', 'WHOLESALER', 'BAR', 'RESTAURANT'];
@@ -84,6 +85,7 @@ export default function CustomersPage() {
             render: (t: string) => <Tag color={t === 'CREDIT' ? 'blue' : 'default'}>{t}</Tag>,
           },
           { title: 'Credit limit', dataIndex: 'credit_limit', align: 'right', render: cedi },
+          lastChangedColumn,
           {
             title: 'Balance owed',
             dataIndex: 'balance',
@@ -105,6 +107,7 @@ export default function CustomersPage() {
         width={640}
         destroyOnClose
       >
+        <RecordStamp entity="customers" id={editing && editing !== 'new' ? editing.customer_id : null} />
         <Form form={form} layout="vertical" requiredMark="optional">
           <Row gutter={12}>
             <Col span={16}>
