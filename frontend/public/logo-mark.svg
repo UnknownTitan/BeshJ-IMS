@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="BESH. J Limited">
+  <!-- BESH. J Limited mark: a bottle on a rounded tile. Replace this file to change the logo everywhere. -->
+  <rect width="64" height="64" rx="14" fill="#1f6feb"/>
+  <rect x="26.5" y="7" width="11" height="4.5" rx="1.5" fill="#f5b72a"/>
+  <path d="M28 12.5h8v8.5c0 3.2 7 5.4 7 11.6V51a5 5 0 0 1-5 5H26a5 5 0 0 1-5-5V32.6c0-6.2 7-8.4 7-11.6z" fill="#ffffff"/>
+  <rect x="21" y="36" width="22" height="10" fill="#f5b72a"/>
+  <path d="M21 36h22" stroke="#1f6feb" stroke-width="1.5"/>
+  <path d="M21 46h22" stroke="#1f6feb" stroke-width="1.5"/>
+</svg>

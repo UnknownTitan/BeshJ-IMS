@@ -3,6 +3,7 @@ import { LockOutlined, UserOutlined } from '@ant-design/icons';
 import { useState } from 'react';
 import { Navigate } from 'react-router-dom';
 import { useAuth } from '../auth/AuthContext';
+import { LOGO_SRC } from '../Logo';
 
 export default function LoginPage() {
   const { user, login } = useAuth();
@@ -24,12 +25,15 @@ export default function LoginPage() {
   };
 
   return (
-    <div style={{ minHeight: '100vh', display: 'grid', placeItems: 'center', background: '#001529' }}>
-      <Card style={{ width: 380 }}>
-        <Typography.Title level={3} style={{ marginBottom: 0 }}>
-          BESH. J Limited
-        </Typography.Title>
-        <Typography.Paragraph type="secondary">Inventory Management System</Typography.Paragraph>
+    <div style={{ minHeight: '100vh', display: 'grid', placeItems: 'center', background: '#001529', padding: 16 }}>
+      <Card style={{ width: '100%', maxWidth: 380 }}>
+        <div style={{ textAlign: 'center', marginBottom: 20 }}>
+          <img src={LOGO_SRC} width={64} height={64} alt="BESH. J Limited logo" style={{ display: 'inline-block' }} />
+          <Typography.Title level={3} style={{ margin: '12px 0 0' }}>
+            BESH. J Limited
+          </Typography.Title>
+          <Typography.Text type="secondary">Inventory Management System</Typography.Text>
+        </div>
         {error && <Alert type="error" message={error} showIcon style={{ marginBottom: 16 }} />}
         <Form layout="vertical" onFinish={onFinish} requiredMark={false}>
           <Form.Item name="username" label="Username" rules={[{ required: true, message: 'Enter your username' }]}>
@@ -42,10 +46,6 @@ export default function LoginPage() {
             Log in
           </Button>
         </Form>
-        <Typography.Paragraph type="secondary" style={{ marginTop: 16, fontSize: 12 }}>
-          Demo users: kappiah (Admin), kmensah (Warehouse Manager), aowusu (Store Keeper), kasante (Sales Rep),
-          edarko (Accountant), aadjei (Management). Password: Password123!
-        </Typography.Paragraph>
       </Card>
     </div>
   );

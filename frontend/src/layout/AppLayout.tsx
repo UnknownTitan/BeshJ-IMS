@@ -5,6 +5,7 @@ import ChangePasswordModal from './ChangePasswordModal';
 import { Outlet, useLocation, useNavigate } from 'react-router-dom';
 import { ROLE_LABELS, useAuth } from '../auth/AuthContext';
 import { MENU } from './menu';
+import Logo from '../Logo';
 
 const { Sider, Header, Content } = Layout;
 
@@ -31,8 +32,8 @@ export default function AppLayout() {
   }));
 
   const logo = (
-    <div style={{ color: '#fff', padding: '18px 20px', fontWeight: 700, fontSize: 16, letterSpacing: 0.3, whiteSpace: 'nowrap' }}>
-      BESH. J IMS
+    <div style={{ padding: '16px 16px 14px' }}>
+      <Logo size={34} onDark tagline="Inventory system" />
     </div>
   );
   const nav = (
@@ -75,9 +76,7 @@ export default function AppLayout() {
           ) : (
             <Space size={4}>
               <Button type="text" size="large" icon={<MenuOutlined />} aria-label="Menu" onClick={() => setMenuOpen(true)} />
-              <Typography.Text strong style={{ fontSize: 16, whiteSpace: 'nowrap' }}>
-                BESH. J IMS
-              </Typography.Text>
+              <Logo size={28} />
             </Space>
           )}
 
