@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { post } from '../../api/client';
 import { useAuth } from '../../auth/AuthContext';
 import { PO_STATUS_COLORS, cedi, date, dateTime } from '../../format';
+import { DocumentTimeline } from '../../history';
 
 interface Props {
   po: any | null;
@@ -181,6 +182,11 @@ export default function PurchaseOrderDetail({ po, onClose, onChanged, onEdit, on
           }))}
         />
       )}
+
+      <Typography.Title level={5} style={{ marginTop: 24 }}>
+        History
+      </Typography.Title>
+      <DocumentTimeline doc="purchase-orders" id={po.po_id} refreshKey={`${po.status}-${po.receipts?.length ?? 0}`} />
     </Drawer>
   );
 }

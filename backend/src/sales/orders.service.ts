@@ -105,7 +105,7 @@ export class OrdersService {
 
   paymentsFor(invoiceId: number) {
     return this.db.query(
-      `SELECT p.payment_id, p.amount, p.payment_method, p.payment_date, p.reference, u.full_name AS received_by_name
+      `SELECT p.payment_id, p.amount, p.payment_method, p.payment_date, p.created_at, p.reference, u.full_name AS received_by_name
          FROM payment p JOIN app_user u ON u.user_id = p.received_by
         WHERE p.invoice_id = $1 ORDER BY p.payment_id`,
       [invoiceId],

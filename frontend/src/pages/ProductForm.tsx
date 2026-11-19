@@ -2,6 +2,7 @@ import { Button, Col, Divider, Drawer, Form, Input, InputNumber, Row, Select, Sp
 import { MinusCircleOutlined, PlusOutlined } from '@ant-design/icons';
 import { useEffect, useState } from 'react';
 import { get, patch, post } from '../api/client';
+import { RecordStamp } from '../history';
 
 interface Props {
   /** null = closed, 'new' = create, otherwise the product being edited */
@@ -70,6 +71,7 @@ export default function ProductForm({ product, onClose, onSaved }: Props) {
         </Space>
       }
     >
+      <RecordStamp entity="products" id={isNew ? null : product?.product_id} />
       <Form form={form} layout="vertical" requiredMark="optional">
         <Row gutter={12}>
           <Col span={12}>

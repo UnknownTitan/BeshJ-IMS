@@ -13,6 +13,7 @@ import { CustomersController } from './customers/customers.controller';
 import { LookupsController } from './lookups/lookups.controller';
 import { StockController } from './stock/stock.controller';
 import { UsersController } from './users/users.controller';
+import { HistoryController } from './history/history.controller';
 import { PurchasingController } from './purchasing/purchasing.controller';
 import { PurchasingService } from './purchasing/purchasing.service';
 import { InvoicesController, OrdersController } from './sales/sales.controller';
@@ -43,6 +44,7 @@ const FRONTEND_DIST = join(__dirname, '..', '..', 'frontend', 'dist');
       : []),
   ],
   controllers: [
+    HistoryController,
     HealthController,
     ProductsController,
     SuppliersController,

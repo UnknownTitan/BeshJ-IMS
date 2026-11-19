@@ -140,3 +140,12 @@ Every report returns the same shape: `{name, title, subtitle, columns:[{key, lab
 ```
 
 Database constraint errors come back as 400/409 with the constraint name (see `common/pg-exception.filter.ts`).
+
+## Timestamps (FR12)
+
+| | Method | Path | Roles | Purpose |
+|---|---|---|---|---|
+| ✅ | GET | `/history/:doc/:id` | any signed-in user | Every step of a document with time and person. `doc` = `orders`, `purchase-orders`, `write-offs`, `van-trips`, `stocktakes`. Read from `v_document_timeline` (built on the audit trail): created, each status change, invoice issued, payments, deliveries received |
+| ✅ | GET | `/stamps/:entity/:id` | any signed-in user | When a record was added and last changed, and by whom. `entity` = `products`, `customers`, `suppliers`, `vans`, `users` |
+
+Lists of products, customers, suppliers, users, vans, invoices and payments also return `created_at` / `updated_at`.

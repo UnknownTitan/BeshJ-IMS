@@ -43,7 +43,7 @@ export class VansController {
     return this.db.query(
       `SELECT l.location_id AS van_id, l.location_name, l.vehicle_reg, l.is_active,
               l.home_location_id, h.location_name AS home_name,
-              l.driver_id, u.full_name AS driver_name, u.is_active AS driver_active,
+              l.driver_id, u.full_name AS driver_name, u.is_active AS driver_active, l.created_at, l.updated_at,
               t.trip_id AS open_trip_id, t.trip_no AS open_trip_no,
               COALESCE((SELECT SUM(qty_on_hand) FROM stock_batch b WHERE b.location_id = l.location_id), 0)::int AS units_on_board,
               (SELECT COUNT(*) FROM van_trip x WHERE x.van_id = l.location_id)::int AS trips

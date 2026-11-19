@@ -15,6 +15,7 @@ export class ProductsService {
               p.category_id, c.category_name, p.supplier_id, s.supplier_name,
               p.pack_size_ml, p.packaging, p.base_unit,
               p.cost_price, p.selling_price, p.reorder_level, p.container_type_id, p.is_active,
+              p.created_at, p.updated_at,
               (SELECT MAX(uc.base_qty) FROM unit_conversion uc WHERE uc.product_id = p.product_id) AS pack_qty,
               COALESCE(SUM(b.qty_on_hand) FILTER (WHERE l.location_type = 'WAREHOUSE'), 0)::int AS warehouse_qty
          FROM product p

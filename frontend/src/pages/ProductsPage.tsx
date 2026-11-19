@@ -5,6 +5,7 @@ import { get } from '../api/client';
 import { useAuth } from '../auth/AuthContext';
 import ProductForm from './ProductForm';
 import { date, dateTime } from '../format';
+import { lastChangedColumn, RecordStamp } from '../history';
 
 const MOVE_COLORS: Record<string, string> = {
   RECEIPT: 'green',
@@ -101,6 +102,7 @@ export default function ProductsPage() {
             align: 'right',
             render: (q: number, r) => (q <= r.reorder_level ? <Tag color="red">{q}</Tag> : q),
           },
+          lastChangedColumn,
         ]}
       />
 
@@ -119,6 +121,7 @@ export default function ProductsPage() {
       >
         {selected && (
           <>
+            <RecordStamp entity="products" id={selected.product_id} />
             <Descriptions column={1} size="small" bordered>
               <Descriptions.Item label="SKU">{selected.sku}</Descriptions.Item>
               <Descriptions.Item label="Barcode">{selected.barcode ?? '—'}</Descriptions.Item>

@@ -3,7 +3,7 @@ import { DollarOutlined, PrinterOutlined } from '@ant-design/icons';
 import { useEffect, useState } from 'react';
 import { get } from '../../api/client';
 import { useAuth } from '../../auth/AuthContext';
-import { cedi, date } from '../../format';
+import { cedi, date, dateTime } from '../../format';
 import PaymentModal, { PaymentTarget } from './PaymentModal';
 
 /** FR10 - invoices, what is still owed, and recording payments (Accountant's view). */
@@ -54,7 +54,7 @@ export default function InvoicesPage() {
         columns={[
           { title: 'Invoice', dataIndex: 'invoice_no' },
           { title: 'Customer', dataIndex: 'customer_name' },
-          { title: 'Date', dataIndex: 'invoice_date', render: date },
+          { title: 'Issued', dataIndex: 'created_at', render: dateTime, sorter: (a: any, b: any) => +new Date(a.created_at) - +new Date(b.created_at) },
           {
             title: 'Due',
             dataIndex: 'due_date',

@@ -23,6 +23,7 @@ import { useEffect, useMemo, useState } from 'react';
 import { get, patch, post } from '../../api/client';
 import { useAuth } from '../../auth/AuthContext';
 import { cedi, date, dateTime, qtyWithPacks } from '../../format';
+import { DocumentTimeline, RecordStamp } from '../../history';
 
 /** UC6 - manage the fleet, load vans in the morning, reconcile them in the evening. */
 export default function VansPage() {
@@ -344,6 +345,7 @@ export default function VansPage() {
             description="The driver, home depot and status can be changed once the trip is reconciled."
           />
         )}
+        <RecordStamp entity="vans" id={editVan?.van_id} />
         <Form form={vanForm} layout="vertical" requiredMark="optional">
           <Form.Item name="location_name" label="Name" rules={[{ required: true, message: 'Give the van a name' }]}>
             <Input maxLength={50} placeholder="e.g. Van 4 - Kasoa" />
@@ -535,6 +537,11 @@ export default function VansPage() {
                 Sold from the van on invoices: {Array.from(new Set(trip.sales.flatMap((s: any) => s.invoices.split(', ')))).join(', ')}
               </Typography.Paragraph>
             )}
+
+            <Typography.Title level={5} style={{ marginTop: 24 }}>
+              History
+            </Typography.Title>
+            <DocumentTimeline doc="van-trips" id={trip.trip_id} refreshKey={trip.status} />
           </>
         )}
       </Drawer>
