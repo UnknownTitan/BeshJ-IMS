@@ -76,15 +76,15 @@ export default function CustomersPage() {
         dataSource={rows}
         columns={[
           { title: 'Customer', dataIndex: 'customer_name' },
-          { title: 'Type', dataIndex: 'customer_type', render: (t: string) => <Tag>{t}</Tag> },
-          { title: 'Phone', dataIndex: 'phone' },
-          { title: 'GPS address', dataIndex: 'gps_address', className: 'nowrap' },
+          { title: 'Type', responsive: ['md'], dataIndex: 'customer_type', render: (t: string) => <Tag>{t}</Tag> },
+          { title: 'Phone', responsive: ['sm'], dataIndex: 'phone' },
+          { title: 'GPS address', responsive: ['md'], dataIndex: 'gps_address', className: 'nowrap' },
           {
-            title: 'Terms',
+            title: 'Terms', responsive: ['sm'],
             dataIndex: 'payment_terms',
             render: (t: string) => <Tag color={t === 'CREDIT' ? 'blue' : 'default'}>{t}</Tag>,
           },
-          { title: 'Credit limit', dataIndex: 'credit_limit', align: 'right', render: cedi },
+          { title: 'Credit limit', responsive: ['sm'], dataIndex: 'credit_limit', align: 'right', render: cedi },
           lastChangedColumn,
           {
             title: 'Balance owed',
@@ -110,27 +110,27 @@ export default function CustomersPage() {
         <RecordStamp entity="customers" id={editing && editing !== 'new' ? editing.customer_id : null} />
         <Form form={form} layout="vertical" requiredMark="optional">
           <Row gutter={12}>
-            <Col span={16}>
+            <Col xs={24} sm={16}>
               <Form.Item name="customer_name" label="Customer name" rules={[{ required: true }]}>
                 <Input maxLength={100} />
               </Form.Item>
             </Col>
-            <Col span={8}>
+            <Col xs={24} sm={8}>
               <Form.Item name="customer_type" label="Type" rules={[{ required: true }]}>
                 <Select options={TYPES.map((t) => ({ value: t, label: t[0] + t.slice(1).toLowerCase() }))} />
               </Form.Item>
             </Col>
-            <Col span={12}>
+            <Col xs={24} sm={12}>
               <Form.Item name="contact_person" label="Contact person">
                 <Input maxLength={80} />
               </Form.Item>
             </Col>
-            <Col span={12}>
+            <Col xs={24} sm={12}>
               <Form.Item name="phone" label="Phone" rules={[{ required: true }, { pattern: /^\+?[0-9]{9,14}$/, message: '9 to 14 digits' }]}>
                 <Input maxLength={15} />
               </Form.Item>
             </Col>
-            <Col span={12}>
+            <Col xs={24} sm={12}>
               <Form.Item
                 name="gps_address"
                 label="Ghana Post GPS address"
@@ -140,7 +140,7 @@ export default function CustomersPage() {
                 <Input maxLength={15} placeholder="GA-183-8164" />
               </Form.Item>
             </Col>
-            <Col span={12}>
+            <Col xs={24} sm={12}>
               <Form.Item name="tin" label="TIN">
                 <Input maxLength={15} />
               </Form.Item>
@@ -148,12 +148,12 @@ export default function CustomersPage() {
           </Row>
           {!canSetCredit && <Alert type="info" showIcon message="Only an Accountant can change payment terms and credit limits." style={{ marginBottom: 12 }} />}
           <Row gutter={12}>
-            <Col span={12}>
+            <Col xs={24} sm={12}>
               <Form.Item name="payment_terms" label="Payment terms">
                 <Select disabled={!canSetCredit} options={[{ value: 'CASH', label: 'Cash' }, { value: 'CREDIT', label: 'Credit' }]} />
               </Form.Item>
             </Col>
-            <Col span={12}>
+            <Col xs={24} sm={12}>
               <Form.Item name="credit_limit" label="Credit limit (GH₵)">
                 <InputNumber min={0} precision={2} style={{ width: '100%' }} disabled={!canSetCredit || terms !== 'CREDIT'} />
               </Form.Item>

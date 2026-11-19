@@ -58,11 +58,11 @@ export default function SuppliersPage() {
         pagination={false}
         columns={[
           { title: 'Supplier', dataIndex: 'supplier_name' },
-          { title: 'Contact', dataIndex: 'contact_person' },
+          { title: 'Contact', responsive: ['sm'], dataIndex: 'contact_person' },
           { title: 'Phone', dataIndex: 'phone' },
-          { title: 'Email', dataIndex: 'email' },
-          { title: 'TIN', dataIndex: 'tin' },
-          { title: 'Products', dataIndex: 'product_count', align: 'right' },
+          { title: 'Email', responsive: ['md'], dataIndex: 'email' },
+          { title: 'TIN', responsive: ['md'], dataIndex: 'tin' },
+          { title: 'Products', responsive: ['sm'], dataIndex: 'product_count', align: 'right' },
           lastChangedColumn,
           ...(canEdit
             ? [{ title: '', key: 'edit', width: 60, render: (_: any, r: any) => <Button size="small" icon={<EditOutlined />} onClick={() => open(r)} /> }]
@@ -82,32 +82,32 @@ export default function SuppliersPage() {
         <RecordStamp entity="suppliers" id={editing && editing !== 'new' ? editing.supplier_id : null} />
         <Form form={form} layout="vertical" requiredMark="optional">
           <Row gutter={12}>
-            <Col span={24}>
+            <Col xs={24} sm={24}>
               <Form.Item name="supplier_name" label="Supplier name" rules={[{ required: true }]}>
                 <Input maxLength={100} />
               </Form.Item>
             </Col>
-            <Col span={12}>
+            <Col xs={24} sm={12}>
               <Form.Item name="contact_person" label="Contact person">
                 <Input maxLength={80} />
               </Form.Item>
             </Col>
-            <Col span={12}>
+            <Col xs={24} sm={12}>
               <Form.Item name="phone" label="Phone" rules={[{ required: true }, { pattern: /^\+?[0-9]{9,14}$/, message: '9 to 14 digits' }]}>
                 <Input maxLength={15} />
               </Form.Item>
             </Col>
-            <Col span={12}>
+            <Col xs={24} sm={12}>
               <Form.Item name="email" label="Email" rules={[{ type: 'email' }]}>
                 <Input maxLength={100} />
               </Form.Item>
             </Col>
-            <Col span={12}>
+            <Col xs={24} sm={12}>
               <Form.Item name="tin" label="TIN (Ghana Revenue Authority)" rules={[{ required: true }]}>
                 <Input maxLength={15} />
               </Form.Item>
             </Col>
-            <Col span={24}>
+            <Col xs={24} sm={24}>
               <Form.Item name="address" label="Address" rules={[{ required: true }]}>
                 <Input maxLength={150} />
               </Form.Item>

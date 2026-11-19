@@ -83,12 +83,12 @@ export default function PurchaseOrdersPage() {
         columns={[
           { title: 'PO number', dataIndex: 'po_no', className: 'nowrap' },
           { title: 'Supplier', dataIndex: 'supplier_name' },
-          { title: 'Order date', dataIndex: 'po_date', render: date },
-          { title: 'Expected', dataIndex: 'expected_date', render: date },
+          { title: 'Order date', responsive: ['sm'], dataIndex: 'po_date', render: date },
+          { title: 'Expected', responsive: ['md'], dataIndex: 'expected_date', render: date },
           { title: 'Status', dataIndex: 'status', render: (s: string) => <Tag color={PO_STATUS_COLORS[s]}>{s}</Tag> },
-          { title: 'Products', dataIndex: 'line_count', align: 'right' },
+          { title: 'Products', responsive: ['md'], dataIndex: 'line_count', align: 'right' },
           { title: 'Value', dataIndex: 'total_value', align: 'right', render: cedi },
-          { title: 'Raised by', dataIndex: 'created_by_name' },
+          { title: 'Raised by', responsive: ['lg'], dataIndex: 'created_by_name' },
         ]}
       />
 

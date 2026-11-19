@@ -419,7 +419,7 @@ export default function VansPage() {
       >
         {trip && (
           <>
-            <Descriptions size="small" bordered column={2} style={{ marginBottom: 16 }}>
+            <Descriptions size="small" bordered column={{ xs: 1, sm: 2 }} style={{ marginBottom: 16 }}>
               <Descriptions.Item label="Driver">{trip.driver_name}</Descriptions.Item>
               <Descriptions.Item label="Depot">{trip.depot_name}</Descriptions.Item>
               <Descriptions.Item label="Loaded">
@@ -486,18 +486,18 @@ export default function VansPage() {
                   />
                 )}
                 <Row gutter={16} style={{ marginTop: 16 }}>
-                  <Col span={8}>
+                  <Col xs={24} sm={8}>
                     <Card size="small">
                       <Typography.Text type="secondary">Cash collected by the driver (system)</Typography.Text>
                       <div style={{ fontSize: 20 }}>{cedi(trip.cash_collected)}</div>
                     </Card>
                   </Col>
-                  <Col span={8}>
+                  <Col xs={24} sm={8}>
                     <Form.Item name="cash_declared" label="Cash handed in" rules={[{ required: true }]}>
                       <InputNumber min={0} precision={2} style={{ width: '100%' }} />
                     </Form.Item>
                   </Col>
-                  <Col span={8}>
+                  <Col xs={24} sm={8}>
                     {cashDeclared != null && cashDeclared !== trip.cash_collected && (
                       <Alert type={cashDeclared < trip.cash_collected ? 'error' : 'info'} message={`Difference ${cedi(cashDeclared - trip.cash_collected)}`} />
                     )}
@@ -524,7 +524,7 @@ export default function VansPage() {
                     { title: 'Missing', dataIndex: 'qty_short', align: 'right', render: (d: number) => (d ? <Tag color="red">{d}</Tag> : 0) },
                   ]}
                 />
-                <Descriptions size="small" column={3} style={{ marginTop: 16 }}>
+                <Descriptions size="small" column={{ xs: 1, sm: 2, md: 3 }} style={{ marginTop: 16 }}>
                   <Descriptions.Item label="Cash expected">{cedi(trip.cash_expected)}</Descriptions.Item>
                   <Descriptions.Item label="Cash handed in">{cedi(trip.cash_declared)}</Descriptions.Item>
                   <Descriptions.Item label="Difference">{cedi(trip.cash_declared - trip.cash_expected)}</Descriptions.Item>
