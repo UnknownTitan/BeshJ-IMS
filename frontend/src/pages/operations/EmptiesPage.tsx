@@ -144,7 +144,7 @@ export default function EmptiesPage() {
                   { title: 'Qty', dataIndex: 'quantity', align: 'right' },
                   { title: 'Deposit', dataIndex: 'deposit_value', align: 'right', render: cedi },
                   { title: 'Refund', dataIndex: 'refund_method', render: (m: string | null) => (m === 'CREDIT' ? 'Credited to account' : m === 'CASH' ? 'Cash' : '—') },
-                  { title: 'Order', dataIndex: 'order_no', render: (n: string | null) => n ?? '—' },
+                  { title: 'Order', dataIndex: 'order_no', className: 'nowrap', render: (n: string | null) => n ?? '—' },
                   { title: 'By', dataIndex: 'recorded_by_name' },
                 ]}
               />

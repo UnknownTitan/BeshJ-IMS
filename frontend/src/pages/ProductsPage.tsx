@@ -86,16 +86,17 @@ export default function ProductsPage() {
         dataSource={rows}
         onRow={(r) => ({ onClick: () => open(r.product_id), style: { cursor: 'pointer' } })}
         columns={[
-          { title: 'SKU', dataIndex: 'sku' },
-          { title: 'Brand', dataIndex: 'brand' },
+          { title: 'SKU', dataIndex: 'sku', className: 'nowrap' },
+          { title: 'Brand', dataIndex: 'brand', responsive: ['xl'] },
           {
             title: 'Product',
             dataIndex: 'product_name',
+            onCell: () => ({ style: { minWidth: 190 } }),
             render: (n: string, r) => (r.is_active ? n : <Typography.Text type="secondary">{n} <Tag>Inactive</Tag></Typography.Text>),
           },
-          { title: 'Category', dataIndex: 'category_name' },
-          { title: 'Pack', render: (_, r) => `${r.pack_size_ml} ml ${r.packaging}` },
-          { title: 'Selling price', dataIndex: 'selling_price', align: 'right', render: (v: number) => `GH₵ ${v.toFixed(2)}` },
+          { title: 'Category', dataIndex: 'category_name', responsive: ['lg'] },
+          { title: 'Pack', className: 'nowrap', render: (_, r) => `${r.pack_size_ml} ml ${r.packaging}` },
+          { title: 'Selling price', dataIndex: 'selling_price', align: 'right', render: (v: number) => `GH₵\u00a0${v.toFixed(2)}` },
           {
             title: 'In warehouse',
             dataIndex: 'warehouse_qty',
@@ -156,7 +157,7 @@ export default function ProductsPage() {
               pagination={false}
               dataSource={selected.batches}
               columns={[
-                { title: 'Batch', dataIndex: 'batch_no' },
+                { title: 'Batch', dataIndex: 'batch_no', className: 'nowrap' },
                 { title: 'Location', dataIndex: 'location_name' },
                 { title: 'Expiry', dataIndex: 'expiry_date', render: date },
                 { title: 'Qty', dataIndex: 'qty_on_hand', align: 'right' },
@@ -176,7 +177,7 @@ export default function ProductsPage() {
                   columns={[
                     { title: 'When', dataIndex: 'movement_time', render: dateTime },
                     { title: 'Type', dataIndex: 'movement_type', render: (t: string) => <Tag color={MOVE_COLORS[t]}>{t}</Tag> },
-                    { title: 'Batch', dataIndex: 'batch_no' },
+                    { title: 'Batch', dataIndex: 'batch_no', className: 'nowrap' },
                     {
                       title: 'Qty',
                       dataIndex: 'quantity',

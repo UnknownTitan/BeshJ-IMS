@@ -102,7 +102,7 @@ export default function StocktakePage() {
         dataSource={rows}
         onRow={(r) => ({ onClick: () => open(r.stocktake_id), style: { cursor: 'pointer' } })}
         columns={[
-          { title: 'Count', dataIndex: 'stocktake_no' },
+          { title: 'Count', dataIndex: 'stocktake_no', className: 'nowrap' },
           { title: 'Location', dataIndex: 'location_name' },
           { title: 'Started', render: (_, r: any) => `${dateTime(r.started_at)} · ${r.started_by_name}` },
           { title: 'Counted', render: (_, r: any) => `${r.counted} / ${r.batches}` },
@@ -196,7 +196,7 @@ export default function StocktakePage() {
                 dataSource={st.lines}
                 columns={[
                   { title: 'Product', dataIndex: 'product_name' },
-                  { title: 'Batch', dataIndex: 'batch_no' },
+                  { title: 'Batch', dataIndex: 'batch_no', className: 'nowrap' },
                   { title: 'Expiry', dataIndex: 'expiry_date', render: date },
                   { title: 'System', dataIndex: 'system_qty', align: 'right' },
                   {

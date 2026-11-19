@@ -1,3 +1,4 @@
+import { dateTime } from '../format';
 import { Button, Card, Form, Input, Modal, Result, Select, Space, Switch, Table, Tag, Typography, message } from 'antd';
 import { EditOutlined, KeyOutlined, PlusOutlined } from '@ant-design/icons';
 import { useEffect, useState } from 'react';
@@ -83,7 +84,7 @@ export function UsersPage() {
           { title: 'Role', dataIndex: 'role', render: (r: Role) => <Tag color="blue">{ROLE_LABELS[r]}</Tag> },
           { title: 'Phone', dataIndex: 'phone' },
           { title: 'Active', dataIndex: 'is_active', render: (a: boolean) => (a ? <Tag color="green">Yes</Tag> : <Tag>No</Tag>) },
-          { title: 'Last login', dataIndex: 'last_login', render: (d: string | null) => (d ? new Date(d).toLocaleString() : '—') },
+          { title: 'Last login', dataIndex: 'last_login', render: (d: string | null) => dateTime(d) },
           lastChangedColumn,
           {
             title: '',
@@ -174,7 +175,7 @@ export function AuditLogPage() {
           ),
         }}
         columns={[
-          { title: 'When', dataIndex: 'changed_at', render: (d: string) => new Date(d).toLocaleString() },
+          { title: 'When', dataIndex: 'changed_at', render: (d: string) => dateTime(d) },
           { title: 'Who', dataIndex: 'changed_by' },
           { title: 'Action', dataIndex: 'operation', render: (o: string) => <Tag>{o}</Tag> },
           { title: 'Table', dataIndex: 'table_name' },

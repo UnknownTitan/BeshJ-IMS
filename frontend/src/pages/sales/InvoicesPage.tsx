@@ -52,7 +52,7 @@ export default function InvoicesPage() {
         rowKey="invoice_id"
         dataSource={rows}
         columns={[
-          { title: 'Invoice', dataIndex: 'invoice_no' },
+          { title: 'Invoice', dataIndex: 'invoice_no', className: 'nowrap' },
           { title: 'Customer', dataIndex: 'customer_name' },
           { title: 'Issued', dataIndex: 'created_at', render: dateTime, sorter: (a: any, b: any) => +new Date(a.created_at) - +new Date(b.created_at) },
           {

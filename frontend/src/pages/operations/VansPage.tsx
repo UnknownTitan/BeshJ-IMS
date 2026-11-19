@@ -167,7 +167,7 @@ export default function VansPage() {
       </Space>
       <Row gutter={16} style={{ marginBottom: 16 }}>
         {vans.map((v) => (
-          <Col xs={24} md={8} key={v.van_id}>
+          <Col xs={24} md={12} xl={8} key={v.van_id}>
             <Card
               style={{ marginBottom: 16, opacity: v.is_active ? 1 : 0.6 }}
               title={
@@ -240,7 +240,7 @@ export default function VansPage() {
           dataSource={trips}
           onRow={(r) => ({ onClick: () => openTrip(r.trip_id), style: { cursor: 'pointer' } })}
           columns={[
-            { title: 'Trip', dataIndex: 'trip_no' },
+            { title: 'Trip', dataIndex: 'trip_no', className: 'nowrap' },
             { title: 'Date', dataIndex: 'trip_date', render: date },
             { title: 'Van', dataIndex: 'van_name' },
             { title: 'Driver', dataIndex: 'driver_name' },
