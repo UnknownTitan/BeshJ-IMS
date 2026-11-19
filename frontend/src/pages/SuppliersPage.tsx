@@ -1,4 +1,5 @@
-import { Button, Card, Col, Form, Input, Modal, Row, Space, Table, Typography, message } from 'antd';
+import { Button, Card, Col, Form, Input, Modal, Row, Space, Typography, message } from 'antd';
+import Table from '../components/ResponsiveTable';
 import { EditOutlined, PlusOutlined } from '@ant-design/icons';
 import { useEffect, useState } from 'react';
 import { get, patch, post } from '../api/client';

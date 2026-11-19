@@ -1,4 +1,5 @@
-import { Button, Card, Empty, Modal, Space, Table, Typography } from 'antd';
+import { Button, Card, Empty, Modal, Space, Typography } from 'antd';
+import Table from '../../components/ResponsiveTable';
 import { useEffect, useState } from 'react';
 import { get } from '../../api/client';
 import { cedi, qtyWithPacks } from '../../format';

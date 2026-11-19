@@ -1,4 +1,5 @@
-import { Button, Card, Col, Row, Segmented, Space, Statistic, Table, Tag, Typography } from 'antd';
+import { Button, Card, Col, Row, Segmented, Space, Statistic, Tag, Typography } from 'antd';
+import Table from '../../components/ResponsiveTable';
 import { DollarOutlined, PrinterOutlined } from '@ant-design/icons';
 import { useEffect, useState } from 'react';
 import { get } from '../../api/client';

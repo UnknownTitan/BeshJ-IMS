@@ -1,4 +1,5 @@
-import { Alert, Button, Descriptions, Drawer, Form, InputNumber, Select, Space, Table, Tag, Typography, message } from 'antd';
+import { Alert, Button, Descriptions, Drawer, Form, InputNumber, Select, Space, Tag, Typography, message } from 'antd';
+import Table from '../../components/ResponsiveTable';
 import { DeleteOutlined, PlusOutlined } from '@ant-design/icons';
 import { useEffect, useMemo, useState } from 'react';
 import { get, patch, post } from '../../api/client';

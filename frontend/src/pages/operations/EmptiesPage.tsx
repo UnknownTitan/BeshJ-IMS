@@ -1,4 +1,5 @@
-import { Button, Card, Col, Form, InputNumber, Modal, Radio, Row, Select, Space, Statistic, Table, Tabs, Tag, Typography, message } from 'antd';
+import { Button, Card, Col, Form, InputNumber, Modal, Radio, Row, Select, Space, Statistic, Tabs, Tag, Typography, message } from 'antd';
+import Table from '../../components/ResponsiveTable';
 import { RollbackOutlined, ShopOutlined } from '@ant-design/icons';
 import { useEffect, useState } from 'react';
 import { get, post } from '../../api/client';

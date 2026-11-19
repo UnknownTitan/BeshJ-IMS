@@ -1,4 +1,5 @@
-import { Alert, Button, Descriptions, Drawer, Modal, Popconfirm, Select, Space, Table, Tag, Typography, message } from 'antd';
+import { Alert, Button, Descriptions, Drawer, Modal, Popconfirm, Select, Space, Tag, Typography, message } from 'antd';
+import Table from '../../components/ResponsiveTable';
 import {
   CarOutlined,
   CheckOutlined,

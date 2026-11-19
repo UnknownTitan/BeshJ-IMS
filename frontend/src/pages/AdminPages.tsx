@@ -1,5 +1,6 @@
 import { dateTime } from '../format';
-import { Button, Card, Form, Input, Modal, Result, Select, Space, Switch, Table, Tag, Typography, message } from 'antd';
+import { Button, Card, Form, Input, Modal, Result, Select, Space, Switch, Tag, Typography, message } from 'antd';
+import Table from '../components/ResponsiveTable';
 import { EditOutlined, KeyOutlined, PlusOutlined } from '@ant-design/icons';
 import { useEffect, useState } from 'react';
 import { get, patch, post } from '../api/client';

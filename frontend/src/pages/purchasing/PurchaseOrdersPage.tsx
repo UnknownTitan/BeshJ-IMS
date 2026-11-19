@@ -1,4 +1,5 @@
-import { Badge, Button, Card, Segmented, Space, Table, Tag, Typography } from 'antd';
+import { Badge, Button, Card, Segmented, Space, Tag, Typography } from 'antd';
+import Table from '../../components/ResponsiveTable';
 import { BulbOutlined, PlusOutlined } from '@ant-design/icons';
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';

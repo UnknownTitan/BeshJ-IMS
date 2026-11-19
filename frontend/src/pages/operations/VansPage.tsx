@@ -1,23 +1,5 @@
-import {
-  Alert,
-  Badge,
-  Button,
-  Card,
-  Col,
-  Descriptions,
-  Drawer,
-  Form,
-  Input,
-  InputNumber,
-  Row,
-  Select,
-  Space,
-  Switch,
-  Table,
-  Tag,
-  Typography,
-  message,
-} from 'antd';
+import { Alert, Badge, Button, Card, Col, Descriptions, Drawer, Form, Input, InputNumber, Row, Select, Space, Switch, Tag, Typography, message } from 'antd';
+import Table from '../../components/ResponsiveTable';
 import { CarOutlined, CheckSquareOutlined, DeleteOutlined, EditOutlined, PlusOutlined } from '@ant-design/icons';
 import { useEffect, useMemo, useState } from 'react';
 import { get, patch, post } from '../../api/client';
