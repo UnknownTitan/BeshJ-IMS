@@ -7,26 +7,29 @@ import {
   NotFoundException,
   Param,
   ParseIntPipe,
+  Patch,
   Post,
   Query,
 } from '@nestjs/common';
 import { PoolClient } from 'pg';
 import { DatabaseService } from '../database/database.service';
 import { AuthUser, CurrentUser, Role, Roles } from '../common/roles';
-import { CreateTripDto, ReconcileTripDto } from './operations.dto';
+import { CreateTripDto, CreateVanDto, ReconcileTripDto, UpdateVanDto } from './operations.dto';
+import { insertRow, updateRow } from '../common/sql';
 
-const MAIN_WAREHOUSE = 1;
+const VAN_COLUMNS = ['location_name', 'vehicle_reg', 'home_location_id', 'driver_id', 'is_active'] as const;
 const VIEW = [Role.STORE_KEEPER, Role.WAREHOUSE_MANAGER, Role.DRIVER, Role.SALES_REP, Role.MANAGEMENT, Role.ACCOUNTANT];
 
 /**
  * UC6 Van loading and end-of-day reconciliation (FR7).
  *
- * Morning: the Store Keeper loads a van. Stock is picked from the Main
- * Warehouse earliest expiry first, and each pick is one VAN_LOAD movement;
+ * Each van has a home depot (a warehouse) and usually a regular driver.
+ * Morning: the Store Keeper loads a van. Stock is picked from the van's home
+ * depot earliest expiry first, and each pick is one VAN_LOAD movement;
  * the trigger moves it from the warehouse batch into the same batch on the van.
  * During the day: sales are invoiced from the van's stock.
  * Evening: everything left on the van is counted back. Good stock returns to
- * the warehouse (VAN_RETURN), broken stock is written off (BREAKAGE), and any
+ * the depot it came from (VAN_RETURN), broken stock is written off (BREAKAGE), and any
  * shortage is recorded against the driver (ADJUSTMENT). The van ends empty.
  */
 @Controller()
@@ -34,19 +37,48 @@ const VIEW = [Role.STORE_KEEPER, Role.WAREHOUSE_MANAGER, Role.DRIVER, Role.SALES
 export class VansController {
   constructor(private readonly db: DatabaseService) {}
 
-  /** GET /api/vans - each van, its driver, open trip and stock on board */
+  /** GET /api/vans - each van, its depot, driver, open trip and stock on board (retired vans last) */
   @Get('vans')
   vans() {
     return this.db.query(
-      `SELECT l.location_id AS van_id, l.location_name, l.vehicle_reg, l.driver_id, u.full_name AS driver_name,
+      `SELECT l.location_id AS van_id, l.location_name, l.vehicle_reg, l.is_active,
+              l.home_location_id, h.location_name AS home_name,
+              l.driver_id, u.full_name AS driver_name, u.is_active AS driver_active,
               t.trip_id AS open_trip_id, t.trip_no AS open_trip_no,
-              COALESCE((SELECT SUM(qty_on_hand) FROM stock_batch b WHERE b.location_id = l.location_id), 0)::int AS units_on_board
+              COALESCE((SELECT SUM(qty_on_hand) FROM stock_batch b WHERE b.location_id = l.location_id), 0)::int AS units_on_board,
+              (SELECT COUNT(*) FROM van_trip x WHERE x.van_id = l.location_id)::int AS trips
          FROM stock_location l
+         LEFT JOIN stock_location h ON h.location_id = l.home_location_id
          LEFT JOIN app_user u ON u.user_id = l.driver_id
          LEFT JOIN van_trip t ON t.van_id = l.location_id AND t.status = 'LOADED'
         WHERE l.location_type = 'VAN'
-        ORDER BY l.location_name`,
+        ORDER BY l.is_active DESC, l.location_name`,
     );
+  }
+
+  /** POST /api/vans - add a van (Warehouse Manager) */
+  @Post('vans')
+  @Roles(Role.WAREHOUSE_MANAGER)
+  async createVan(@Body() dto: CreateVanDto, @CurrentUser() u: AuthUser) {
+    const id = await this.db.transaction(u.userId, async (c) => {
+      await this.checkUnique(c, dto, null);
+      const row = await insertRow(c, 'stock_location', { ...dto, location_type: 'VAN' }, [...VAN_COLUMNS, 'location_type']);
+      return row.location_id as number;
+    });
+    return this.van(id);
+  }
+
+  /** PATCH /api/vans/:id - rename, change registration, depot or driver, retire or bring back */
+  @Patch('vans/:id')
+  @Roles(Role.WAREHOUSE_MANAGER)
+  async updateVan(@Param('id', ParseIntPipe) id: number, @Body() dto: UpdateVanDto, @CurrentUser() u: AuthUser) {
+    await this.db.transaction(u.userId, async (c) => {
+      const { rows } = await c.query(`SELECT location_type FROM stock_location WHERE location_id = $1 FOR UPDATE`, [id]);
+      if (rows[0]?.location_type !== 'VAN') throw new NotFoundException('Van not found');
+      await this.checkUnique(c, dto, id);
+      await updateRow(c, 'stock_location', 'location_id', id, { ...dto }, VAN_COLUMNS);
+    });
+    return this.van(id);
   }
 
   /** GET /api/vans/:id/stock - batches on the van */
@@ -66,10 +98,12 @@ export class VansController {
   trips(@Query('status') status?: string) {
     return this.db.query(
       `SELECT t.*, l.location_name AS van_name, l.vehicle_reg, d.full_name AS driver_name, lb.full_name AS loaded_by_name,
+              dp.location_name AS depot_name,
               (SELECT SUM(qty_loaded) FROM van_trip_line x WHERE x.trip_id = t.trip_id)::int AS units_loaded,
               (SELECT SUM(qty_short) FROM van_trip_line x WHERE x.trip_id = t.trip_id)::int AS units_short
          FROM van_trip t
          JOIN stock_location l ON l.location_id = t.van_id
+         JOIN stock_location dp ON dp.location_id = t.depot_id
          JOIN app_user d ON d.user_id = t.driver_id
          JOIN app_user lb ON lb.user_id = t.loaded_by
         WHERE ($1::text IS NULL OR t.status = $1)
@@ -83,9 +117,10 @@ export class VansController {
   async trip(@Param('id', ParseIntPipe) id: number) {
     const trip = await this.db.one(
       `SELECT t.*, l.location_name AS van_name, l.vehicle_reg, d.full_name AS driver_name,
-              lb.full_name AS loaded_by_name, rb.full_name AS reconciled_by_name
+              lb.full_name AS loaded_by_name, rb.full_name AS reconciled_by_name, dp.location_name AS depot_name
          FROM van_trip t
          JOIN stock_location l ON l.location_id = t.van_id
+         JOIN stock_location dp ON dp.location_id = t.depot_id
          JOIN app_user d ON d.user_id = t.driver_id
          JOIN app_user lb ON lb.user_id = t.loaded_by
          LEFT JOIN app_user rb ON rb.user_id = t.reconciled_by
@@ -118,10 +153,12 @@ export class VansController {
   async load(@Body() dto: CreateTripDto, @CurrentUser() u: AuthUser) {
     const tripId = await this.db.transaction(u.userId, async (c) => {
       const { rows: van } = await c.query(
-        `SELECT location_type, driver_id, location_name FROM stock_location WHERE location_id = $1 FOR UPDATE`,
+        `SELECT location_type, driver_id, location_name, home_location_id, is_active FROM stock_location WHERE location_id = $1 FOR UPDATE`,
         [dto.van_id],
       );
       if (van[0]?.location_type !== 'VAN') throw new BadRequestException('Choose a van');
+      if (!van[0].is_active) throw new BadRequestException(`${van[0].location_name} is retired`);
+      const depot: number = van[0].home_location_id;
       const driverId = dto.driver_id ?? van[0].driver_id;
       if (!driverId) throw new BadRequestException(`${van[0].location_name} has no driver assigned; choose one`);
       const { rows: drv } = await c.query(`SELECT role, is_active FROM app_user WHERE user_id = $1`, [driverId]);
@@ -131,23 +168,23 @@ export class VansController {
       if (open[0]) throw new BadRequestException(`${van[0].location_name} is still out on ${open[0].trip_no}; reconcile it first`);
 
       const { rows: t } = await c.query(
-        `INSERT INTO van_trip (trip_no, van_id, driver_id, loaded_by, notes)
-         VALUES (fn_next_doc_no('TRIP', 'trip_no_seq'), $1, $2, $3, $4) RETURNING trip_id, trip_no`,
-        [dto.van_id, driverId, u.userId, dto.notes || null],
+        `INSERT INTO van_trip (trip_no, van_id, driver_id, loaded_by, notes, depot_id)
+         VALUES (fn_next_doc_no('TRIP', 'trip_no_seq'), $1, $2, $3, $4, $5) RETURNING trip_id, trip_no`,
+        [dto.van_id, driverId, u.userId, dto.notes || null, depot],
       );
       const { trip_id, trip_no } = t[0];
 
       for (const line of dto.lines) {
         const { rows: picks } = await c.query(`SELECT * FROM fn_fefo_allocate($1, $2::smallint, $3)`, [
           line.product_id,
-          MAIN_WAREHOUSE,
+          depot,
           line.quantity,
         ]);
         for (const pick of picks) {
           await c.query(
             `INSERT INTO stock_movement (batch_id, movement_type, quantity, from_location_id, to_location_id, user_id, reference)
              VALUES ($1, 'VAN_LOAD', $2, $3, $4, $5, $6)`,
-            [pick.batch_id, pick.qty_to_pick, MAIN_WAREHOUSE, dto.van_id, u.userId, trip_no],
+            [pick.batch_id, pick.qty_to_pick, depot, dto.van_id, u.userId, trip_no],
           );
         }
         await c.query(`INSERT INTO van_trip_line (trip_id, product_id, qty_loaded) VALUES ($1, $2, $3)`, [
@@ -224,7 +261,7 @@ export class VansController {
           await this.move(c, p, 'ADJUSTMENT', trip.van_id, null, u.userId, trip.trip_no, `Van shortage on ${trip.trip_no} (driver ${trip.driver_name})`);
         }
         for (const p of take(line.qty_returned)) {
-          await this.move(c, p, 'VAN_RETURN', trip.van_id, MAIN_WAREHOUSE, u.userId, trip.trip_no, null);
+          await this.move(c, p, 'VAN_RETURN', trip.van_id, trip.depot_id, u.userId, trip.trip_no, null);
         }
 
         await c.query(
@@ -254,6 +291,28 @@ export class VansController {
   }
 
   // ---------------------------------------------------------------- helpers
+
+  private async van(id: number) {
+    const rows = await this.vans();
+    return rows.find((v: any) => v.van_id === id);
+  }
+
+  /** Clear messages for the database's UNIQUE rules on name, registration and driver. */
+  private async checkUnique(c: PoolClient, dto: { location_name?: string; vehicle_reg?: string; driver_id?: number | null }, id: number | null) {
+    const checks: [string, unknown, (name: string) => string][] = [
+      ['lower(location_name) = lower(btrim($1))', dto.location_name, (n) => `There is already a location called ${n}`],
+      ['vehicle_reg = upper(btrim($1))', dto.vehicle_reg, (n) => `${n} already has that registration number`],
+      ['driver_id = $1', dto.driver_id, (n) => `That driver is already assigned to ${n}; remove them there first`],
+    ];
+    for (const [where, value, message] of checks) {
+      if (value === undefined || value === null) continue;
+      const { rows } = await c.query(
+        `SELECT location_name FROM stock_location WHERE ${where} AND location_id IS DISTINCT FROM $2::smallint`,
+        [value, id],
+      );
+      if (rows[0]) throw new BadRequestException(message(rows[0].location_name));
+    }
+  }
 
   private move(c: PoolClient, p: { batch_id: number; qty: number }, type: string, from: number, to: number | null, userId: number, ref: string, reason: string | null) {
     return c.query(

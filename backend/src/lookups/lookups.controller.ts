@@ -19,8 +19,9 @@ export class LookupsController {
   @Get('locations')
   locations() {
     return this.db.query(
-      `SELECT l.location_id, l.location_name, l.location_type, l.vehicle_reg, l.driver_id, u.full_name AS driver_name
+      `SELECT l.location_id, l.location_name, l.location_type, l.vehicle_reg, l.home_location_id, l.driver_id, u.full_name AS driver_name
          FROM stock_location l LEFT JOIN app_user u ON u.user_id = l.driver_id
+        WHERE l.is_active
         ORDER BY l.location_type DESC, l.location_name`,
     );
   }

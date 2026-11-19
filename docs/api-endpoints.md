@@ -103,11 +103,13 @@ Life cycle: `DRAFT → (submit) → CONFIRMED`, or `PENDING_CREDIT_APPROVAL → 
 | ✅ | GET | `/empties/transactions?customerId=` | empties roles | History of issues and returns |
 | ✅ | POST | `/empties/returns` | STORE_KEEPER, DRIVER, SALES_REP, ACCOUNTANT | `{customer_id, refund_method: CREDIT\|CASH, lines:[{container_type_id, quantity}]}`; CREDIT lowers the balance; can't return more than held (trigger) |
 | ✅ | POST | `/empties/supplier-returns` | STORE_KEEPER, WAREHOUSE_MANAGER | Empties sent back to a supplier |
-| ✅ | GET | `/vans` | van roles | Vans, drivers, open trip, units on board |
+| ✅ | GET | `/vans` | van roles | Vans with home depot, driver, open trip, units on board, trip count; retired vans last |
+| ✅ | POST | `/vans` | WAREHOUSE_MANAGER | `{location_name, vehicle_reg, home_location_id, driver_id?}`; name, registration and driver must be unique |
+| ✅ | PATCH | `/vans/:id` | WAREHOUSE_MANAGER | Any of the above, `driver_id: null` to remove, `is_active` to retire or restore; driver, depot and status locked while out on a trip; a van holding stock can't be retired |
 | ✅ | GET | `/vans/:id/stock` | van roles | Batches on a van |
 | ✅ | GET | `/van-trips?status=` · `/van-trips/:id` | van roles | Trips; detail includes stock on board, sales from the van, cash collected by the driver |
-| ✅ | POST | `/van-trips` | STORE_KEEPER, WAREHOUSE_MANAGER | `{van_id, driver_id?, lines:[{product_id, quantity}]}`; FEFO from the warehouse; one open trip per van |
-| ✅ | POST | `/van-trips/:id/reconcile` | STORE_KEEPER, WAREHOUSE_MANAGER | `{cash_declared, lines:[{product_id, qty_returned, qty_damaged}]}`; returns (VAN_RETURN), breakage (BREAKAGE), shortage (ADJUSTMENT against the driver); van ends empty |
+| ✅ | POST | `/van-trips` | STORE_KEEPER, WAREHOUSE_MANAGER | `{van_id, driver_id?, lines:[{product_id, quantity}]}`; FEFO from the van's home depot; active vans only; one open trip per van |
+| ✅ | POST | `/van-trips/:id/reconcile` | STORE_KEEPER, WAREHOUSE_MANAGER | `{cash_declared, lines:[{product_id, qty_returned, qty_damaged}]}`; returns to the trip's depot (VAN_RETURN), breakage (BREAKAGE), shortage (ADJUSTMENT against the driver); van ends empty |
 | ✅ | POST | `/orders/:id/invoice` with `{van_id}` | as invoicing | **Van sale**: picks from the van's stock; order becomes LOADED_ON_VAN |
 | ✅ | GET | `/stocktakes` · `/stocktakes/:id` | STORE_KEEPER, WAREHOUSE_MANAGER, MANAGEMENT, ACCOUNTANT | Counts with summary (differences, units short/over, net value) |
 | ✅ | POST | `/stocktakes` | STORE_KEEPER, WAREHOUSE_MANAGER | `{location_id}`: snapshot of every batch; one open count per location |

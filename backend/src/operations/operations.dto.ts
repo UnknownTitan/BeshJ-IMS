@@ -3,6 +3,7 @@ import {
   ArrayMinSize,
   ArrayUnique,
   IsArray,
+  IsBoolean,
   IsIn,
   IsInt,
   IsNotEmpty,
@@ -116,4 +117,21 @@ export class SaveCountsDto {
   @ValidateNested({ each: true })
   @Type(() => CountDto)
   counts: CountDto[];
+}
+
+// ---------------------------------------------------------------- vans
+export class CreateVanDto {
+  @IsString() @IsNotEmpty({ message: 'Give the van a name' }) @MaxLength(50) location_name: string;
+  @IsString() @IsNotEmpty({ message: 'Enter the registration number' }) @MaxLength(12) vehicle_reg: string;
+  @IsInt({ message: 'Choose a home depot' }) home_location_id: number;
+  @IsOptional() @IsInt() driver_id?: number | null;
+}
+
+export class UpdateVanDto {
+  @IsOptional() @IsString() @IsNotEmpty() @MaxLength(50) location_name?: string;
+  @IsOptional() @IsString() @IsNotEmpty() @MaxLength(12) vehicle_reg?: string;
+  @IsOptional() @IsInt() home_location_id?: number;
+  /** null removes the driver */
+  @IsOptional() @IsInt() driver_id?: number | null;
+  @IsOptional() @IsBoolean() is_active?: boolean;
 }
