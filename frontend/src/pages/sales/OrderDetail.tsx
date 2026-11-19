@@ -211,7 +211,7 @@ export default function OrderDetail({ order, onClose, onChanged, onEdit }: Props
             locale={{ emptyText: 'Sample invoice: no picking record' }}
             columns={[
               { title: 'Product', dataIndex: 'product_name' },
-              { title: 'Batch', dataIndex: 'batch_no' },
+              { title: 'Batch', dataIndex: 'batch_no', className: 'nowrap' },
               { title: 'Expiry', dataIndex: 'expiry_date', render: date },
               { title: 'Qty', dataIndex: 'quantity', align: 'right' },
             ]}

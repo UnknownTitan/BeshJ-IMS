@@ -85,9 +85,16 @@ function AppRoutes() {
   );
 }
 
+const TOUCH = typeof window !== 'undefined' && window.matchMedia?.('(pointer: coarse)').matches;
+
 export default function App() {
   return (
-    <ConfigProvider theme={{ token: { colorPrimary: '#1f6feb', borderRadius: 6 } }}>
+    <ConfigProvider
+      theme={{
+        // On touch screens (tablets) buttons and fields are a finger's height.
+        token: { colorPrimary: '#1f6feb', borderRadius: 6, ...(TOUCH ? { controlHeight: 40, controlHeightSM: 30 } : {}) },
+      }}
+    >
       <AuthProvider>
         <BrowserRouter>
           <AppRoutes />

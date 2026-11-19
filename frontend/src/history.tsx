@@ -51,6 +51,7 @@ export const lastChangedColumn = {
   title: 'Last changed',
   key: 'last_changed',
   width: 150,
+  responsive: ['lg'] as ('lg')[],
   sorter: (a: any, b: any) => +new Date(a.updated_at ?? a.created_at ?? 0) - +new Date(b.updated_at ?? b.created_at ?? 0),
   render: (_: unknown, r: any) => (
     <Typography.Text type="secondary">{r.updated_at || r.created_at ? dateTime(r.updated_at ?? r.created_at) : 'Original data'}</Typography.Text>

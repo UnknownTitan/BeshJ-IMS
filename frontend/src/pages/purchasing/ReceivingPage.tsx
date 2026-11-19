@@ -113,7 +113,7 @@ export default function ReceivingPage() {
           dataSource={done.grn.lines}
           columns={[
             { title: 'Product', dataIndex: 'product_name' },
-            { title: 'Batch', dataIndex: 'batch_no', render: (b: string | null) => b ?? '—' },
+            { title: 'Batch', dataIndex: 'batch_no', className: 'nowrap', render: (b: string | null) => b ?? '—' },
             { title: 'Expiry', dataIndex: 'expiry_date', render: date },
             { title: 'Into stock', dataIndex: 'qty_received', align: 'right' },
             { title: 'Damaged', dataIndex: 'qty_damaged', align: 'right' },

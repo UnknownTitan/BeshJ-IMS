@@ -5,7 +5,7 @@ import { get, patch, post } from '../api/client';
 import { useAuth } from '../auth/AuthContext';
 import { lastChangedColumn, RecordStamp } from '../history';
 
-const cedi = (n: number | null) => (n == null ? '—' : `GH₵ ${Number(n).toLocaleString('en-GH', { minimumFractionDigits: 2 })}`);
+const cedi = (n: number | null) => (n == null ? '—' : `GH₵\u00a0${Number(n).toLocaleString('en-GH', { minimumFractionDigits: 2 })}`);
 const TYPES = ['RETAILER', 'WHOLESALER', 'BAR', 'RESTAURANT'];
 
 /** Customers with balances. Sales Reps register them; only Accountants set credit terms (FR9). */
@@ -78,7 +78,7 @@ export default function CustomersPage() {
           { title: 'Customer', dataIndex: 'customer_name' },
           { title: 'Type', dataIndex: 'customer_type', render: (t: string) => <Tag>{t}</Tag> },
           { title: 'Phone', dataIndex: 'phone' },
-          { title: 'GPS address', dataIndex: 'gps_address' },
+          { title: 'GPS address', dataIndex: 'gps_address', className: 'nowrap' },
           {
             title: 'Terms',
             dataIndex: 'payment_terms',

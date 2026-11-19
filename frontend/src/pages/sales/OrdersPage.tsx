@@ -81,15 +81,15 @@ export default function OrdersPage() {
         dataSource={rows}
         onRow={(r) => ({ onClick: () => open(r.order_id), style: { cursor: 'pointer' } })}
         columns={[
-          { title: 'Order', dataIndex: 'order_no' },
+          { title: 'Order', dataIndex: 'order_no', className: 'nowrap' },
           { title: 'Date', dataIndex: 'order_date', render: date },
-          { title: 'Customer', dataIndex: 'customer_name' },
+          { title: 'Customer', dataIndex: 'customer_name', onCell: () => ({ style: { minWidth: 170 } }) },
           {
             title: 'Status',
             dataIndex: 'status',
             render: (s: string) => <Tag color={ORDER_STATUS[s]?.color}>{ORDER_STATUS[s]?.label ?? s}</Tag>,
           },
-          { title: 'Invoice', dataIndex: 'invoice_no', render: (n: string | null) => n ?? '—' },
+          { title: 'Invoice', dataIndex: 'invoice_no', className: 'nowrap', responsive: ['lg'], render: (n: string | null) => n ?? '—' },
           {
             title: 'Value',
             align: 'right',
@@ -101,7 +101,7 @@ export default function OrdersPage() {
             align: 'right',
             render: (o: number | null) => (o == null ? '—' : o > 0 ? <span style={{ color: '#cf1322' }}>{cedi(o)}</span> : cedi(0)),
           },
-          { title: 'Sales rep', dataIndex: 'sales_rep_name' },
+          { title: 'Sales rep', dataIndex: 'sales_rep_name', responsive: ['lg'] },
         ]}
       />
       <Typography.Text type="secondary" style={{ fontSize: 12 }}>

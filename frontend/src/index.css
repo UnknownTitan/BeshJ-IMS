@@ -1,2 +1,29 @@
 * { box-sizing: border-box; }
 body { margin: 0; background: #f5f6f8; }
+
+/* ---------------------------------------------------------------- tablets
+   Every table scrolls sideways inside its card instead of stretching the page,
+   and headings, document numbers and amounts stay on one line. */
+.ant-table-content,
+.ant-table-body { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+.ant-table-thead > tr > th { white-space: nowrap; }
+.ant-table-cell a,
+.ant-table-cell .ant-tag { white-space: nowrap; }
+
+/* Side panels never run past the screen edge (they open full width on a portrait tablet). */
+.ant-drawer-content-wrapper { max-width: 100vw; }
+
+/* Touch screens: bigger rows to tap, and lists that don't hide behind hover. */
+@media (pointer: coarse) {
+  .ant-table-tbody > tr > td { padding-top: 14px; padding-bottom: 14px; }
+  .ant-menu-dark .ant-menu-item { height: 48px; line-height: 48px; }
+}
+
+/* Narrow screens: tighter cards so content gets the room. */
+@media (max-width: 1199px) {
+  .ant-card .ant-card-body { padding: 16px; }
+  .ant-drawer .ant-drawer-body { padding: 16px; }
+}
+
+/* Document numbers, batch numbers and dates are read as one word. */
+.nowrap { white-space: nowrap; }

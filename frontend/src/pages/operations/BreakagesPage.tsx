@@ -147,7 +147,7 @@ export default function BreakagesPage() {
           ),
         }}
         columns={[
-          { title: 'No.', dataIndex: 'write_off_no' },
+          { title: 'No.', dataIndex: 'write_off_no', className: 'nowrap' },
           { title: 'Recorded', dataIndex: 'recorded_at', render: dateTime },
           { title: 'Product', dataIndex: 'product_name' },
           { title: 'Batch', render: (_, r: any) => `${r.batch_no} (exp. ${date(r.expiry_date)})` },

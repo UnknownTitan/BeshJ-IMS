@@ -9,7 +9,7 @@ const GRID = '#e8e8e6';
 const TEXT_SECONDARY = '#52514e';
 
 const shortCedi = (n: number) => (n >= 1000 ? `₵${(n / 1000).toFixed(n >= 10000 ? 0 : 1)}k` : `₵${Math.round(n)}`);
-const cedi = (n: number) => `GH₵ ${Number(n).toLocaleString('en-GH', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+const cedi = (n: number) => `GH₵\u00a0${Number(n).toLocaleString('en-GH', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
 
 function TipBox({ title, value }: { title: string; value: string }) {
   return (

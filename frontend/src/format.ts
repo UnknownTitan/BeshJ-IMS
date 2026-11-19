@@ -1,13 +1,16 @@
 // Shared display helpers.
 
 export const cedi = (n: number | null | undefined) =>
-  n == null ? '—' : `GH₵ ${Number(n).toLocaleString('en-GH', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+  n == null ? '—' : `GH₵\u00a0${Number(n).toLocaleString('en-GH', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+
+// Dates and times use non-breaking spaces so a narrow column never splits them.
+const keep = (s: string) => s.replace(/ /g, '\u00a0');
 
 export const date = (d: string | null | undefined) =>
-  d ? new Date(d.length === 10 ? `${d}T00:00:00` : d).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }) : '—';
+  d ? keep(new Date(d.length === 10 ? `${d}T00:00:00` : d).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' })) : '—';
 
 export const dateTime = (d: string | null | undefined) =>
-  d ? new Date(d).toLocaleString('en-GB', { day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' }) : '—';
+  d ? keep(new Date(d).toLocaleString('en-GB', { day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' })).replace(',\u00a0', ', ') : '—';
 
 /** "480 bottles (20 crates)" when a whole-pack conversion exists. */
 export const qtyWithPacks = (qty: number, baseUnit: string, packQty?: number, packName = 'crate') => {

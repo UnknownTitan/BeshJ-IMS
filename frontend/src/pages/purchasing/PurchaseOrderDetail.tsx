@@ -118,7 +118,7 @@ export default function PurchaseOrderDetail({ po, onClose, onChanged, onEdit, on
         pagination={false}
         dataSource={po.lines}
         columns={[
-          { title: '#', dataIndex: 'line_no', width: 40 },
+          { title: '#', dataIndex: 'line_no', className: 'nowrap', width: 40 },
           { title: 'Product', dataIndex: 'product_name' },
           { title: 'Ordered', dataIndex: 'qty_ordered', align: 'right' },
           { title: 'Received', dataIndex: 'qty_received', align: 'right' },
@@ -166,7 +166,7 @@ export default function PurchaseOrderDetail({ po, onClose, onChanged, onEdit, on
                   dataSource={r.lines}
                   columns={[
                     { title: 'Product', dataIndex: 'product_name' },
-                    { title: 'Batch', dataIndex: 'batch_no', render: (b: string | null) => b ?? '—' },
+                    { title: 'Batch', dataIndex: 'batch_no', className: 'nowrap', render: (b: string | null) => b ?? '—' },
                     { title: 'Expiry', dataIndex: 'expiry_date', render: date },
                     { title: 'Received', dataIndex: 'qty_received', align: 'right' },
                     {

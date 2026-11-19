@@ -81,7 +81,7 @@ export default function PurchaseOrdersPage() {
         dataSource={rows}
         onRow={(r) => ({ onClick: () => open(r.po_id), style: { cursor: 'pointer' } })}
         columns={[
-          { title: 'PO number', dataIndex: 'po_no' },
+          { title: 'PO number', dataIndex: 'po_no', className: 'nowrap' },
           { title: 'Supplier', dataIndex: 'supplier_name' },
           { title: 'Order date', dataIndex: 'po_date', render: date },
           { title: 'Expected', dataIndex: 'expected_date', render: date },
