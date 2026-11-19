@@ -1,4 +1,5 @@
-import { Button, Card, DatePicker, InputNumber, Segmented, Select, Space, Table, Typography, message } from 'antd';
+import { Button, Card, DatePicker, InputNumber, Segmented, Select, Space, Typography, message } from 'antd';
+import Table from '../components/ResponsiveTable';
 import { FileExcelOutlined, FilePdfOutlined, ReloadOutlined } from '@ant-design/icons';
 import type { Dayjs } from 'dayjs';
 import { useEffect, useState } from 'react';

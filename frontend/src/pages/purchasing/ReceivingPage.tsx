@@ -1,23 +1,5 @@
-import {
-  Alert,
-  Button,
-  Card,
-  Col,
-  DatePicker,
-  Descriptions,
-  Empty,
-  Form,
-  Input,
-  InputNumber,
-  List,
-  Result,
-  Row,
-  Space,
-  Table,
-  Tag,
-  Typography,
-  message,
-} from 'antd';
+import { Alert, Button, Card, Col, DatePicker, Descriptions, Empty, Form, Input, InputNumber, List, Result, Row, Space, Tag, Typography, message } from 'antd';
+import Table from '../../components/ResponsiveTable';
 import { InboxOutlined } from '@ant-design/icons';
 import dayjs from 'dayjs';
 import { useEffect, useState } from 'react';

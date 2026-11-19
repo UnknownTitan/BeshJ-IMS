@@ -1,4 +1,5 @@
-import { Button, Card, Checkbox, Segmented, Space, Table, Tag, Typography } from 'antd';
+import { Button, Card, Checkbox, Segmented, Space, Tag, Typography } from 'antd';
+import Table from '../../components/ResponsiveTable';
 import { PlusOutlined } from '@ant-design/icons';
 import { useEffect, useState } from 'react';
 import { get } from '../../api/client';

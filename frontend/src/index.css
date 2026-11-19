@@ -52,6 +52,11 @@ body { margin: 0; background: #f5f6f8; }
   /* Totals boxes fill the width instead of floating right */
   .ant-descriptions { max-width: 100% !important; }
 
+  /* Search boxes and filter rows fit the screen */
+  .ant-input-search, .ant-input-group-wrapper, .ant-input-affix-wrapper { max-width: 100%; }
+  .ant-card-body > .ant-space, .ant-card-body > div > .ant-space { flex-wrap: wrap; max-width: 100%; }
+  .ant-space-item { max-width: 100%; min-width: 0; }
+
   /* Rows of fields inside a panel (a product and its quantity) wrap onto two lines */
   .ant-drawer-body .ant-space-horizontal { flex-wrap: wrap; }
   .ant-drawer-body .ant-select,
@@ -67,3 +72,67 @@ body { margin: 0; background: #f5f6f8; }
 /* Panels waiting off-screen must not widen the page either. "clip" (unlike
    "hidden") doesn't turn the page into a scroll box, so the sticky header still works. */
 html, body { overflow-x: hidden; overflow-x: clip; }
+
+/* ------------------------------------------------- tables become cards on phones
+   Each row is a card; each value sits on its own line, labelled with its column
+   title (data-label, added by components/ResponsiveTable.tsx). */
+@media (max-width: 575px) {
+  .rt-cards .ant-table { background: transparent; }
+  .rt-cards .ant-table-thead { display: none; }
+  .rt-cards .ant-table-content,
+  .rt-cards .ant-table-body { overflow: visible !important; }
+  .rt-cards table { min-width: 0 !important; width: 100% !important; table-layout: auto !important; }
+  .rt-cards table, .rt-cards tbody, .rt-cards tfoot { display: block; }
+  .rt-cards colgroup { display: none; }
+
+  .rt-cards tr.ant-table-row,
+  .rt-cards .ant-table-summary tr {
+    display: block;
+    background: #fff;
+    border: 1px solid #ececec;
+    border-radius: 10px;
+    padding: 4px 14px;
+    margin-bottom: 10px;
+  }
+  .rt-cards tr.ant-table-row > td,
+  .rt-cards .ant-table-summary td {
+    display: flex !important;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 8px 0 !important;
+    border-bottom: 1px solid #f5f5f5 !important;
+    text-align: right !important;
+    white-space: normal;
+    min-width: 0 !important;
+    width: auto !important;
+    background: transparent !important;
+  }
+  .rt-cards tr.ant-table-row > td:last-child { border-bottom: none !important; }
+  .rt-cards tr.ant-table-row > td[data-label]:not([data-label=""])::before {
+    content: attr(data-label);
+    color: rgba(0, 0, 0, 0.5);
+    font-size: 13px;
+    text-align: left;
+    flex: 0 0 auto;
+    max-width: 45%;
+  }
+  /* The first value (order number, product, customer …) is the card's heading */
+  .rt-cards tr.ant-table-row > td:first-child { font-weight: 600; }
+  /* Cells with no column title (edit buttons, actions) sit at the right */
+  .rt-cards tr.ant-table-row > td[data-label=""] { justify-content: flex-end; }
+  .rt-cards tr.ant-table-row > td:empty { display: none !important; }
+  /* Fields inside a card (quantities on a delivery, counts on a stocktake) */
+  .rt-cards tr.ant-table-row > td .ant-input-number,
+  .rt-cards tr.ant-table-row > td .ant-select { flex: 0 1 60%; min-width: 0; }
+  .rt-cards tr.ant-table-row > td .ant-form-item { margin: 0; flex: 0 1 60%; }
+  .rt-cards tr.ant-table-row > td .ant-form-item .ant-input-number,
+  .rt-cards tr.ant-table-row > td .ant-form-item .ant-select { width: 100% !important; }
+  /* Expanded rows (write-off details) read as the bottom of their card */
+  .rt-cards tr.ant-table-expanded-row { display: block; margin: -10px 0 10px; }
+  .rt-cards tr.ant-table-expanded-row > td { display: block; padding: 10px 14px !important; }
+  .rt-cards .ant-table-row-expand-icon-cell::before { content: 'Details' !important; }
+  .rt-cards .ant-table-tbody > tr.ant-table-placeholder { display: block; }
+  .rt-cards .ant-table-tbody > tr.ant-table-placeholder > td { display: block; }
+  .rt-cards .ant-table-pagination { justify-content: center; }
+}

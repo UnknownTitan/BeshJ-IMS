@@ -1,4 +1,5 @@
-import { Alert, Button, Descriptions, Drawer, Popconfirm, Space, Table, Tag, Timeline, Typography, message } from 'antd';
+import { Alert, Button, Descriptions, Drawer, Popconfirm, Space, Tag, Timeline, Typography, message } from 'antd';
+import Table from '../../components/ResponsiveTable';
 import { CheckOutlined, CloseOutlined, EditOutlined, InboxOutlined, SendOutlined, StopOutlined } from '@ant-design/icons';
 import { useState } from 'react';
 import { post } from '../../api/client';

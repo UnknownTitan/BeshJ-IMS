@@ -1,4 +1,5 @@
-import { Badge, Card, Col, Empty, List, Row, Statistic, Table, Tag, Typography } from 'antd';
+import { Badge, Card, Col, Empty, List, Row, Statistic, Tag, Typography } from 'antd';
+import Table from '../components/ResponsiveTable';
 import { RightOutlined } from '@ant-design/icons';
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
