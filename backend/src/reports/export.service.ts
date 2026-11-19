@@ -1,4 +1,6 @@
 import { Injectable } from '@nestjs/common';
+import { existsSync, readFileSync } from 'fs';
+import { join } from 'path';
 import ExcelJS from 'exceljs';
 // pdfmake's server-side printer; fonts come from the bundled Roboto files.
 // eslint-disable-next-line @typescript-eslint/no-var-requires
@@ -6,6 +8,18 @@ const PdfPrinter = require('pdfmake');
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const vfsModule = require('pdfmake/build/vfs_fonts');
 import { Report } from './reports.service';
+
+/** The company logo (frontend/public/logo-mark.svg), drawn at the top of PDF reports. */
+const LOGO_SVG: string | null = (() => {
+  const candidates = [
+    join(process.cwd(), '..', 'frontend', 'public', 'logo-mark.svg'),
+    join(process.cwd(), 'frontend', 'public', 'logo-mark.svg'),
+    join(__dirname, '..', '..', '..', 'frontend', 'public', 'logo-mark.svg'),
+    join(__dirname, '..', '..', '..', '..', 'frontend', 'public', 'logo-mark.svg'),
+  ];
+  const found = candidates.find((f) => existsSync(f));
+  return found ? readFileSync(found, 'utf8') : null;
+})();
 
 const vfs: Record<string, string> = vfsModule.pdfMake?.vfs ?? vfsModule.vfs ?? vfsModule;
 const font = (f: string) => Buffer.from(vfs[f], 'base64');
@@ -108,7 +122,15 @@ export class ExportService {
       pageMargins: [36, 40, 36, 40],
       defaultStyle: { font: 'Roboto', fontSize: 9 },
       content: [
-        { text: 'BESH. J LIMITED', bold: true, fontSize: 14 },
+        LOGO_SVG
+          ? {
+              columns: [
+                { svg: LOGO_SVG, width: 30, height: 30 },
+                { text: 'BESH. J LIMITED', bold: true, fontSize: 14, margin: [8, 7, 0, 0] },
+              ],
+              columnGap: 0,
+            }
+          : { text: 'BESH. J LIMITED', bold: true, fontSize: 14 },
         { text: r.title, bold: true, fontSize: 12, margin: [0, 4, 0, 2] },
         { text: r.subtitle, color: '#555555', margin: [0, 0, 0, 2] },
         { text: `Generated ${new Date().toLocaleString('en-GB')} by ${generatedBy}`, color: '#888888', fontSize: 8, margin: [0, 0, 0, 10] },

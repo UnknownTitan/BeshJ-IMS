@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { get } from '../../api/client';
 import { PAYMENT_METHODS, cedi, date } from '../../format';
+import { LOGO_SRC } from '../../Logo';
 
 /**
  * Printable VAT invoice (opens in its own tab, outside the app layout).
@@ -45,9 +46,12 @@ export default function InvoicePrint() {
       </div>
 
       <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-        <div>
-          <div style={{ fontSize: 22, fontWeight: 700 }}>BESH. J LIMITED</div>
-          <div className="muted">Beverage distribution · Accra, Ghana</div>
+        <div style={{ display: 'flex', gap: 12, alignItems: 'center' }}>
+          <img src={LOGO_SRC} width={52} height={52} alt="BESH. J Limited logo" />
+          <div>
+            <div style={{ fontSize: 22, fontWeight: 700 }}>BESH. J LIMITED</div>
+            <div className="muted">Beverage distribution · Accra, Ghana</div>
+          </div>
         </div>
         <div style={{ textAlign: 'right' }}>
           <div style={{ fontSize: 20, fontWeight: 700 }}>TAX INVOICE</div>
