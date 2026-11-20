@@ -24,6 +24,7 @@ services:
       - ./database/08_van_management.sql:/docker-entrypoint-initdb.d/08_van_management.sql:ro
       - ./database/09_timestamps.sql:/docker-entrypoint-initdb.d/09_timestamps.sql:ro
       - ./database/10_sample_dates.sql:/docker-entrypoint-initdb.d/10_sample_dates.sql:ro
+      - ./database/11_sample_barcodes.sql:/docker-entrypoint-initdb.d/11_sample_barcodes.sql:ro
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U besh -d besh_ims"]
       interval: 5s

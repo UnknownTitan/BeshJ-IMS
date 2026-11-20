@@ -29,7 +29,7 @@ The table is the team's contract: the frontend and backend developers agree on t
 | ✅ | GET | `/products/:id` | any | Product, unit conversions, batches |
 | ✅ | POST | `/products` | WAREHOUSE_MANAGER | Create product with `conversions: [{unit_name, base_qty}]` |
 | ✅ | PATCH | `/products/:id` | WAREHOUSE_MANAGER | Edit any field or conversions; deactivate with `is_active: false` |
-| ✅ | GET | `/products/barcode/:code` | any | Look up by scanned barcode or SKU |
+| ✅ | GET | `/products/barcode/:code` | any | Look up by scanned barcode or SKU, with pack sizes; used by the scan bar on Products, Receive stock and Stocktake |
 | ✅ | GET | `/suppliers`, `/suppliers/:id` | any | Suppliers with product counts |
 | ✅ | POST/PATCH | `/suppliers`, `/suppliers/:id` | WAREHOUSE_MANAGER | Add / edit supplier |
 | ✅ | GET | `/customers?search=`, `/customers/:id` | any | Customers with balance owed and empties held |

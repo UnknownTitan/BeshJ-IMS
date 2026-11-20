@@ -6,6 +6,7 @@ import { get, patch, post } from '../../api/client';
 import { useAuth } from '../../auth/AuthContext';
 import { cedi, date, dateTime } from '../../format';
 import { DocumentTimeline } from '../../history';
+import { ScanBar } from '../../components/BarcodeScanner';
 
 const STATUS: Record<string, string> = { COUNTING: 'blue', POSTED: 'green', CANCELLED: 'default' };
 
@@ -20,6 +21,7 @@ export default function StocktakePage() {
   const [busy, setBusy] = useState<string | null>(null);
   const [form] = Form.useForm();
   const counts = Form.useWatch('counts', form) ?? {};
+  const [hit, setHit] = useState<number | null>(null); // product last scanned
 
   const load = () => get('/stocktakes').then(setRows);
   useEffect(() => {
@@ -29,6 +31,7 @@ export default function StocktakePage() {
 
   const show = (s: any) => {
     setSt(s);
+    setHit(null);
     form.resetFields();
     form.setFieldsValue({ counts: Object.fromEntries(s.lines.map((l: any) => [l.batch_id, l.counted_qty ?? undefined])) });
   };
@@ -84,6 +87,28 @@ export default function StocktakePage() {
 
   const counting = st?.status === 'COUNTING';
   const canCount = can('STORE_KEEPER', 'WAREHOUSE_MANAGER');
+  /**
+   * A scanned barcode finds the product's batches in this count, highlights them
+   * and puts the cursor in the first one's count box.
+   */
+  const scanned = async (code: string) => {
+    let product: any;
+    try {
+      product = await get(`/products/barcode/${encodeURIComponent(code)}`);
+    } catch {
+      return message.error(`No product has the barcode ${code}`);
+    }
+    const lines = st.lines.filter((l: any) => l.product_id === product.product_id);
+    if (!lines.length) return message.warning(`${product.product_name} has no stock recorded at this location. Tell the Warehouse Manager.`);
+    setHit(product.product_id);
+    message.success(`${product.product_name}: ${lines.length} batch${lines.length === 1 ? '' : 'es'} to count`);
+    setTimeout(() => {
+      const el = document.getElementById(`counts_${lines[0].batch_id}`) as HTMLInputElement | null;
+      el?.scrollIntoView({ block: 'center', behavior: 'smooth' });
+      el?.focus();
+    }, 50);
+  };
+
   const liveVariance = (l: any) => (counting ? (counts[l.batch_id] ?? null) : l.counted_qty) === null ? null : (counting ? counts[l.batch_id] : l.counted_qty) - l.system_qty;
 
   return (
@@ -189,10 +214,16 @@ export default function StocktakePage() {
             {counting && !can('WAREHOUSE_MANAGER') && (
               <Alert type="info" showIcon style={{ marginBottom: 12 }} message="Save your counts. A Warehouse Manager reviews the differences and posts them." />
             )}
+            {counting && canCount && (
+              <div style={{ marginBottom: 12 }}>
+                <ScanBar onScan={scanned} placeholder="Scan a product" width={340} />
+              </div>
+            )}
             <Form form={form}>
               <Table
                 size="small"
                 rowKey="batch_id"
+                rowClassName={(l: any) => (l.product_id === hit ? 'scan-hit' : '')}
                 pagination={false}
                 dataSource={st.lines}
                 columns={[
