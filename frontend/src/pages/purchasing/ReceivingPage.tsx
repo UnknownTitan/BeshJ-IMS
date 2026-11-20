@@ -1,4 +1,4 @@
-import { Alert, Button, Card, Col, DatePicker, Descriptions, Empty, Form, Input, InputNumber, List, Result, Row, Space, Tag, Typography, message } from 'antd';
+import { Alert, Button, Card, Col, DatePicker, Descriptions, Empty, Form, Input, InputNumber, List, Result, Row, Space, Switch, Tag, Typography, message } from 'antd';
 import Table from '../../components/ResponsiveTable';
 import { InboxOutlined } from '@ant-design/icons';
 import dayjs from 'dayjs';
@@ -6,6 +6,7 @@ import { useEffect, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { get, post } from '../../api/client';
 import { PO_STATUS_COLORS, date } from '../../format';
+import { ScanBar } from '../../components/BarcodeScanner';
 
 /**
  * UC5 - receive a delivery against an approved purchase order.
@@ -20,6 +21,9 @@ export default function ReceivingPage() {
   const [saving, setSaving] = useState(false);
   const [form] = Form.useForm();
   const values = Form.useWatch('lines', form) ?? [];
+  // Barcode scanning: the row last scanned, and whether each scan adds to the count.
+  const [hit, setHit] = useState<number | null>(null);
+  const [counting, setCounting] = useState(false);
 
   const loadWaiting = () => get('/purchase-orders?status=APPROVED,SENT,PARTIAL').then(setWaiting);
 
@@ -31,6 +35,8 @@ export default function ReceivingPage() {
     const id = params.get('po');
     if (!id) return setPo(null);
     setDone(null);
+    setHit(null);
+    setCounting(false);
     get(`/purchase-orders/${id}`).then((p) => {
       setPo(p);
       form.resetFields();
@@ -43,6 +49,50 @@ export default function ReceivingPage() {
       });
     });
   }, [params]);
+
+  /** Count by scanning: start every line at zero, then each scan adds one pack. */
+  const toggleCounting = (on: boolean) => {
+    setCounting(on);
+    if (on) form.setFieldsValue({ lines: po.lines.map((l: any) => ({ line_no: l.line_no, qty_received: 0, qty_damaged: 0 })) });
+    else form.setFieldsValue({ lines: po.lines.map((l: any) => ({ line_no: l.line_no, qty_received: l.qty_outstanding, qty_damaged: 0 })) });
+  };
+
+  /**
+   * A scanned barcode finds its product, checks the product is on this order and
+   * jumps to its line. When counting, it also adds one pack (e.g. a crate of 24),
+   * or one unit for products sold singly.
+   */
+  const scanned = async (code: string) => {
+    let product: any;
+    try {
+      product = await get(`/products/barcode/${encodeURIComponent(code)}`);
+    } catch {
+      return message.error(`No product has the barcode ${code}`);
+    }
+    const i = po.lines.findIndex((l: any) => l.product_id === product.product_id);
+    if (i < 0) return message.warning(`${product.product_name} is not on ${po.po_no}. Check the delivery against the order.`);
+    const line = po.lines[i];
+    if (line.qty_outstanding === 0) return message.info(`${product.product_name} has already been fully received.`);
+    setHit(line.line_no);
+
+    if (counting) {
+      const pack = (product.conversions ?? []).reduce((m: any, c: any) => (c.base_qty > (m?.base_qty ?? 1) ? c : m), null);
+      const add = pack?.base_qty ?? 1;
+      const now = (form.getFieldValue(['lines', i, 'qty_received']) ?? 0) + add;
+      form.setFieldValue(['lines', i, 'qty_received'], now);
+      const what = pack ? `1 ${pack.unit_name.toLowerCase()} (${add})` : `1 ${line.base_unit.toLowerCase()}`;
+      if (now > line.qty_outstanding) message.warning(`${product.product_name}: ${now} counted, but only ${line.qty_outstanding} are outstanding.`);
+      else message.success(`${product.product_name}: +${what}, ${now} of ${line.qty_outstanding}`);
+    } else {
+      message.success(`${product.product_name} is on this order`);
+    }
+    // Bring the line into view and put the cursor in its quantity.
+    setTimeout(() => {
+      const el = document.getElementById(`lines_${i}_qty_received`) as HTMLInputElement | null;
+      el?.scrollIntoView({ block: 'center', behavior: 'smooth' });
+      if (!counting) el?.focus();
+    }, 50);
+  };
 
   const submit = async () => {
     const v = await form.validateFields();
@@ -172,10 +222,32 @@ export default function ReceivingPage() {
             </Col>
           </Row>
 
+          <Space wrap align="center" style={{ marginBottom: 12 }}>
+            <ScanBar
+              onScan={scanned}
+              continuous={counting}
+              placeholder="Scan a product"
+              hint={counting ? 'Scan each crate or pack as it comes off the truck. The camera stays open.' : undefined}
+              width={340}
+            />
+            <Space>
+              <Switch checked={counting} onChange={toggleCounting} />
+              <Typography.Text>Count by scanning</Typography.Text>
+            </Space>
+          </Space>
+          {counting && (
+            <Alert
+              type="info"
+              showIcon
+              style={{ marginBottom: 12 }}
+              message="Counting by scanning: every line starts at zero, and each scan adds one crate or pack. Correct any number by typing."
+            />
+          )}
           <Table
             size="small"
             pagination={false}
             rowKey="line_no"
+            rowClassName={(l: any) => (l.line_no === hit ? 'scan-hit' : '')}
             dataSource={po.lines}
             columns={[
               {

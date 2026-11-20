@@ -136,3 +136,12 @@ html, body { overflow-x: hidden; overflow-x: clip; }
   .rt-cards .ant-table-tbody > tr.ant-table-placeholder > td { display: block; }
   .rt-cards .ant-table-pagination { justify-content: center; }
 }
+
+/* Barcode scanning: the row a scan just found */
+.scan-hit > td {
+  background: #e6f4ff !important;
+  transition: background 0.3s;
+}
+.rt-cards .scan-hit {
+  outline: 2px solid #1677ff;
+}

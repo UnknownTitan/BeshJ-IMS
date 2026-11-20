@@ -81,7 +81,7 @@ describe('Phase 1 - master data (e2e)', () => {
 
     it('a scanned barcode finds its product', async () => {
       const keeper = await as(app, 'aowusu');
-      const res = await keeper.get('/api/products/barcode/5449000000103').expect(200);
+      const res = await keeper.get('/api/products/barcode/5449000000125').expect(200);
       expect(res.body.sku).toBe('SP-300-GL');
     });
   });

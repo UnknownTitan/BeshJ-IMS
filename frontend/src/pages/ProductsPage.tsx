@@ -1,4 +1,4 @@
-import { Button, Card, Checkbox, Descriptions, Drawer, Input, Space, Tag, Typography } from 'antd';
+import { Button, Card, Checkbox, Descriptions, Drawer, Input, Space, Tag, Typography, message } from 'antd';
 import Table from '../components/ResponsiveTable';
 import { EditOutlined, PlusOutlined } from '@ant-design/icons';
 import { useEffect, useState } from 'react';
@@ -7,6 +7,7 @@ import { useAuth } from '../auth/AuthContext';
 import ProductForm from './ProductForm';
 import { date, dateTime } from '../format';
 import { lastChangedColumn, RecordStamp } from '../history';
+import { ScanBar } from '../components/BarcodeScanner';
 
 const MOVE_COLORS: Record<string, string> = {
   RECEIPT: 'green',
@@ -44,6 +45,12 @@ export default function ProductsPage() {
   const [movements, setMovements] = useState<any[]>([]);
   const canSeeLedger = can('WAREHOUSE_MANAGER', 'STORE_KEEPER', 'MANAGEMENT', 'ACCOUNTANT');
 
+  /** A scanned barcode (or SKU) opens that product's details straight away. */
+  const scanned = (code: string) =>
+    get(`/products/barcode/${encodeURIComponent(code)}`)
+      .then((p) => open(p.product_id))
+      .catch(() => message.error(`No product has the barcode ${code}`));
+
   const open = (id: number) => {
     get(`/products/${id}`).then(setSelected);
     if (canSeeLedger) get(`/stock/movements?productId=${id}&limit=20`).then(setMovements);
@@ -63,14 +70,15 @@ export default function ProductsPage() {
       </Space>
       <Space style={{ marginBottom: 16 }} wrap>
         <Input.Search
-          placeholder="Search by name, brand, SKU or scan a barcode"
+          placeholder="Search by name, brand, SKU or barcode"
           allowClear
           enterButton
-          style={{ width: 420 }}
+          style={{ width: 360, maxWidth: '100%' }}
           value={search}
           onChange={(e) => setSearch(e.target.value)}
           onSearch={(q) => load(q)}
         />
+        <ScanBar onScan={scanned} placeholder="Scan a barcode" width={280} />
         <Checkbox
           checked={showInactive}
           onChange={(e) => {
