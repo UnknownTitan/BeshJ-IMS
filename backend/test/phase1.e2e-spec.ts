@@ -87,7 +87,7 @@ describe('Phase 1 - master data (e2e)', () => {
   });
 
   // --------------------------------------------------------------- suppliers
-  describe('suppliers', () => {
+  describe('suppliers (FR1)', () => {
     it('Warehouse Manager adds and edits a supplier', async () => {
       const wm = await as(app, 'kmensah');
       const n = uniq();

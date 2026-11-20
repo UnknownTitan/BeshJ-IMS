@@ -10,7 +10,7 @@ const CASH_CUSTOMER = 1; // Auntie Ama Provisions
 const futureDate = (days: number) => new Date(Date.now() + days * 86400000).toISOString().slice(0, 10);
 const isTime = (v: string) => /\d{4}-\d{2}-\d{2}[T ]\d{2}:\d{2}:\d{2}/.test(v);
 
-describe('Timestamps (e2e)', () => {
+describe('Timestamps (FR12) (e2e)', () => {
   let app: INestApplication;
   beforeAll(async () => (app = await createTestApp()));
   afterAll(async () => app.close());

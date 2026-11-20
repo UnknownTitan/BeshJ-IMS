@@ -1,6 +1,6 @@
 /**
  * Phase 3 end-to-end tests: customer orders, credit control, FEFO invoicing
- * and payments (UC9, FR5, FR9, FR10).
+ * and payments (UC9, FR5, FR9).
  */
 import { INestApplication } from '@nestjs/common';
 import { as, createTestApp } from './helpers';
@@ -28,7 +28,7 @@ describe('Phase 3 - sales, invoicing and payments (e2e)', () => {
   const newOrder = async (customerId: number, lines: object[]) =>
     (await (await rep()).post('/api/orders', { customer_id: customerId, lines }).expect(201)).body;
 
-  describe('placing orders', () => {
+  describe('placing orders (UC9, FR9)', () => {
     it('a Sales Rep creates a DRAFT at list prices; totals include 20% tax and crate deposit', async () => {
       const o = await newOrder(CASH_CUSTOMER, [{ product_id: COKE, quantity: 48 }]);
       expect(o.status).toBe('DRAFT');
@@ -96,7 +96,7 @@ describe('Phase 3 - sales, invoicing and payments (e2e)', () => {
     });
   });
 
-  describe('invoicing, FEFO picking and payment (FR5, FR10)', () => {
+  describe('invoicing, FEFO picking and payment (FR5, FR9)', () => {
     it('full flow: invoice picks earliest expiry first, then delivery and payment complete the order', async () => {
       const before = await warehouseQty(COKE);
       const o = await newOrder(CASH_CUSTOMER, [{ product_id: COKE, quantity: 48 }]);
