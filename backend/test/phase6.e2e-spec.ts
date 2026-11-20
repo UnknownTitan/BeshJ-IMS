@@ -11,7 +11,7 @@ const VAN_1 = 3; // driver yboateng
 const VAN_3 = 5; // Van 3 - Kumasi, home Kumasi Depot, no driver
 const ALOMO = 9; // only stocked at the Kumasi Depot
 
-describe('Van management (e2e)', () => {
+describe('Van management (UC6, FR6) (e2e)', () => {
   let app: INestApplication;
   beforeAll(async () => (app = await createTestApp()));
   afterAll(async () => app.close());

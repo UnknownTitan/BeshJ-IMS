@@ -39,7 +39,7 @@ describe('Phase 2 - purchasing and receiving (e2e)', () => {
 
   const approve = async (id: number) => (await as(app, 'aadjei')).post(`/api/purchase-orders/${id}/approve`).expect(200);
 
-  describe('raising and approving orders (UC2)', () => {
+  describe('raising and approving orders (UC2, FR4)', () => {
     it('Warehouse Manager raises a DRAFT order with a PO number and default costs', async () => {
       const po = await newPo();
       expect(po.status).toBe('DRAFT');
@@ -96,7 +96,7 @@ describe('Phase 2 - purchasing and receiving (e2e)', () => {
     });
   });
 
-  describe('receiving goods (UC5)', () => {
+  describe('receiving goods (UC5, FR2)', () => {
     it('a partial delivery with breakages: good units go into stock, the order becomes PARTIAL', async () => {
       const po = await newPo();
       await approve(po.po_id);
@@ -229,7 +229,7 @@ describe('Phase 2 - purchasing and receiving (e2e)', () => {
     });
   });
 
-  describe('stock ledger integrity (database rules)', () => {
+  describe('stock ledger integrity (FR3, database rules)', () => {
     it('lists the sample receipt for Coca-Cola batch CC27L004', async () => {
       const wm = await as(app, 'kmensah');
       const ledger = (await wm.get(`/api/stock/movements?productId=${COKE}&limit=1000`).expect(200)).body;

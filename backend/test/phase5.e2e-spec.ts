@@ -8,7 +8,7 @@ import { as, createTestApp } from './helpers';
 
 const VOLTIC = 8;
 
-describe('Phase 5 - dashboard and reports (e2e)', () => {
+describe('Phase 5 - dashboard and reports (UC8, FR11) (e2e)', () => {
   let app: INestApplication;
   beforeAll(async () => (app = await createTestApp()));
   afterAll(async () => app.close());

@@ -1,6 +1,6 @@
 /**
- * Phase 4 end-to-end tests: write-offs (UC3, FR6), empties (UC7),
- * van loading and reconciliation (UC6, FR7), stocktake (UC4, FR8).
+ * Phase 4 end-to-end tests: write-offs (UC3, FR8), empties (UC7, FR7),
+ * van loading and reconciliation (UC6, FR6), stocktake (UC4, FR10).
  */
 import { INestApplication } from '@nestjs/common';
 import { as, createTestApp } from './helpers';
@@ -30,7 +30,7 @@ describe('Phase 4 - warehouse operations (e2e)', () => {
     (await (await as(app, 'edarko')).get(`/api/customers/${customerId}`).expect(200)).body.balance as number;
 
   // -------------------------------------------------------------- write-offs
-  describe('breakages and write-offs (UC3)', () => {
+  describe('breakages and write-offs (UC3, FR8)', () => {
     it('a small breakage is posted straight away and leaves stock', async () => {
       const before = await warehouseQty(VOLTIC);
       const wo = (
@@ -88,7 +88,7 @@ describe('Phase 4 - warehouse operations (e2e)', () => {
   });
 
   // ----------------------------------------------------------------- empties
-  describe('empties and deposits (UC7)', () => {
+  describe('empties and deposits (UC7, FR7)', () => {
     it('returned crates credited to the account lower the balance by their deposit', async () => {
       const before = await balance(KANESHIE);
       const res = (
@@ -117,7 +117,7 @@ describe('Phase 4 - warehouse operations (e2e)', () => {
   });
 
   // -------------------------------------------------------------- van trips
-  describe('van loading, van sales and reconciliation (UC6)', () => {
+  describe('van loading, van sales and reconciliation (UC6, FR6)', () => {
     it('load → sell from the van → reconcile with breakage and shortage', async () => {
       const k = await keeper();
       const cokeBefore = await warehouseQty(COKE);
@@ -179,7 +179,7 @@ describe('Phase 4 - warehouse operations (e2e)', () => {
   });
 
   // -------------------------------------------------------------- stocktake
-  describe('stocktake (UC4)', () => {
+  describe('stocktake (UC4, FR10)', () => {
     it('count, then the Warehouse Manager posts the difference as an adjustment', async () => {
       const k = await keeper();
       const st = (await k.post('/api/stocktakes', { location_id: KUMASI_DEPOT }).expect(201)).body;
